@@ -1,0 +1,14 @@
+/* color.css - Theme color variables */
+:root {
+    --primary-bg: #fffbe6;           /* Cream background */
+    --container-bg: #fffde4;         /* Light cream for containers */
+    --primary-text: #5c4a1c;         /* Dark brown for text */
+    --secondary-text: #a68c3f;       /* Gold/Yellow-brown for secondary text */
+    --table-header-bg: #fff7b2;      /* Soft yellow for table headers */
+    --table-border: #ffe082;         /* Light yellow for borders */
+    --status-active-bg: #ffd600;     /* Bright yellow for active status */
+    --status-inactive-bg: #ffb300;   /* Orange-yellow for inactive status */
+    --action-btn-bg: #ffe082;        /* Light yellow for buttons */
+    --action-btn-hover-bg: #ffd54f;  /* Deeper yellow for button hover */
+    --action-btn-text: #5c4a1c;      /* Dark brown for button text */
+}

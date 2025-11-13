@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Mahasiswa - Perpustakaan UM</title>    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <div class="min-h-screen flex bg-gray-50">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-64 bg-white border-r hidden md:block">
+            <div class="h-16 flex items-center px-6 border-b">
+                <img src="./assets/logo-um.png" alt="UM Logo" class="h-8 mr-3">
+                <span class="font-bold">Perpustakaan UM</span>
+            </div>
+            <!-- Simple profile photo only (no name/email) - divider removed -->
+            <div class="p-4 flex items-center justify-center">
+                <img src="./assets/logo-um.png" alt="Avatar" class="h-12 w-12 rounded-full object-cover border">
+            </div>
+            <nav class="p-4">
+                <ul class="space-y-1">
+                    <li>
+                        <a href="#dashboard" id="dashboardNav" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 bg-gray-100">
+                            <i class="fas fa-chart-line w-4"></i>
+                            <span class="text-sm font-medium">Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#data" id="dataNav" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
+                            <i class="fas fa-users w-4"></i>
+                            <span class="text-sm">Data Mahasiswa</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main content -->
+        <div class="flex-1 flex flex-col">
+            <!-- Topbar -->
+            <header class="bg-white shadow-sm sticky top-0 z-10">
+                <div class="max-w-6xl mx-auto flex items-center justify-between px-6 py-3">
+                    <div class="flex items-center gap-3">
+                        <button id="sidebarToggle" class="md:hidden p-2 rounded-md hover:bg-gray-100">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h1 class="text-lg font-semibold text-gray-900">Dashboard Admin</h1>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span id="current-date" class="text-sm text-gray-500 hidden sm:inline"></span>
+                        <div class="relative">
+                            <button id="profileButton" class="flex items-center gap-2 px-3 py-1 rounded-lg hover:bg-gray-100 transition">
+                                <i class="fas fa-user-circle text-xl text-gray-700"></i>
+                                <span class="font-medium">Admin</span>
+                                <i class="fas fa-chevron-down text-xs text-gray-500"></i>
+                            </button>
+                            <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2">
+                                <a href="login.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="flex-1 overflow-auto p-6">
+                <div class="max-w-4xl mx-auto">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 id="pageTitle" class="text-xl font-bold text-gray-900">Dashboard</h2>
+                    </div>
+
+                    <!-- Dashboard (chart) -->
+                    <section id="dashboardSection">
+                        <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">Tren Pendaftaran Mahasiswa</h3>
+                                <div class="flex gap-2">
+                                    <button id="lastWeekBtn" class="px-3 py-1 text-sm rounded-lg bg-gray-100 hover:bg-gray-200 transition">7 Hari</button>
+                                    <button id="lastMonthBtn" class="px-3 py-1 text-sm rounded-lg bg-yellow-400 hover:bg-yellow-500 transition">30 Hari</button>
+                                </div>
+                            </div>
+                            <!-- Resume cards -->
+                            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
+                                <!-- Pendaftar Baru moved to the leftmost position -->
+                                <div class="resume-card cursor-pointer bg-white border rounded-lg p-4 shadow-sm flex items-center gap-4 hover:shadow-md transition" id="cardNew">
+                                    <div class="p-3 bg-blue-100 rounded-full">
+                                        <i class="fas fa-user-plus text-blue-600"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray-500">Pendaftar Baru (7 hari)</div>
+                                        <div class="text-xl font-bold text-gray-900" id="newCount">0</div>
+                                    </div>
+                                </div>
+
+                                <div class="resume-card cursor-pointer bg-white border rounded-lg p-4 shadow-sm flex items-center gap-4 hover:shadow-md transition" id="cardTotal">
+                                    <div class="p-3 bg-yellow-100 rounded-full">
+                                        <i class="fas fa-users text-yellow-600"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray-500">Total Pendaftar</div>
+                                        <div class="text-xl font-bold text-gray-900" id="totalCount">0</div>
+                                    </div>
+                                </div>
+
+                                <div class="resume-card cursor-pointer bg-white border rounded-lg p-4 shadow-sm flex items-center gap-4 hover:shadow-md transition" id="cardActive">
+                                    <div class="p-3 bg-green-100 rounded-full">
+                                        <i class="fas fa-check text-green-600"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray-500">Aktif</div>
+                                        <div class="text-xl font-bold text-gray-900" id="activeCount">0</div>
+                                    </div>
+                                </div>
+
+                                <div class="resume-card cursor-pointer bg-white border rounded-lg p-4 shadow-sm flex items-center gap-4 hover:shadow-md transition" id="cardInactive">
+                                    <div class="p-3 bg-red-100 rounded-full">
+                                        <i class="fas fa-times text-red-600"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray-500">Tidak Aktif</div>
+                                        <div class="text-xl font-bold text-gray-900" id="inactiveCount">0</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="w-full h-[300px]">
+                                <canvas id="registrationChart"></canvas>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Data Mahasiswa (table) -->
+                    <section id="dataSection" class="hidden">
+                        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                            <!-- Search bar for filtering table rows -->
+                            <div class="p-4">
+                                <input id="searchInput" type="search" placeholder="Cari nama, tanggal, status..." class="w-full md:w-1/2 px-3 py-2 border rounded-lg focus:outline-none" />
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr class="border-b">
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-4 py-3">
+                                                <div class="flex items-center">
+                                                    <div class="text-sm font-medium text-gray-900">Ahmad Fauzi</div>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-gray-500">01/06/2024</td>
+                                            <td class="px-4 py-3">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-medium rounded-full bg-green-50 text-green-700">Aktif</span>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <a href="detail_mahasiswa.html?nama=Ahmad%20Fauzi&nim=1234567890&email=ahmad@email.com&foto=asset/logo-um.png&asal=Universitas%20Negeri%20Malang&fakultas=Education&prodi=Teknologi%20Pendidikan&tanggal=2024-06-01" class="text-yellow-600 hover:text-yellow-700">Detail <i class="fas fa-chevron-right text-xs ml-1"></i></a>
+                                            </td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-4 py-3">
+                                                <div class="flex items-center">
+                                                    <div class="text-sm font-medium text-gray-900">Siti Nurhaliza</div>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-gray-500">10/06/2024</td>
+                                            <td class="px-4 py-3">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-medium rounded-full bg-red-50 text-red-700">Tidak Aktif</span>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <a href="detail_mahasiswa.html?nama=Siti%20Nurhaliza&nim=9876543210&email=siti@email.com&foto=asset/logo-um.png&asal=Universitas%20Negeri%20Malang&fakultas=Science&prodi=Biologi&tanggal=2024-06-10" class="text-yellow-600 hover:text-yellow-700">Detail <i class="fas fa-chevron-right text-xs ml-1"></i></a>
+                                            </td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-4 py-3">
+                                                <div class="flex items-center">
+                                                    <div class="text-sm font-medium text-gray-900">Budi Santoso</div>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-gray-500">15/06/2024</td>
+                                            <td class="px-4 py-3">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-medium rounded-full bg-green-50 text-green-700">Aktif</span>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <a href="detail_mahasiswa.html?nama=Budi%20Santoso&nim=1122334455&email=budi@email.com&foto=asset/logo-um.png&asal=Universitas%20Negeri%20Malang&fakultas=Engineering&prodi=Teknik%20Informatika&tanggal=2024-06-15" class="text-yellow-600 hover:text-yellow-700">Detail <i class="fas fa-chevron-right text-xs ml-1"></i></a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white/90 backdrop-blur-md mt-12 border-t border-gray-100">
+        <div class="max-w-6xl mx-auto px-6 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <h3 class="text-lg font-bold mb-3">Perpustakaan Universitas Negeri Malang</h3>
+                    <p class="text-gray-500 text-sm">Menyediakan sumber daya dan layanan akademis untuk mendukung pendidikan dan penelitian.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-3">Akses Lain</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="./index.html" class="text-gray-600 hover:text-yellow-600 transition">Beranda</a></li>
+                        <li><a href="about.html" class="text-gray-600 hover:text-yellow-600 transition">Tentang</a></li>
+                        <li><a href="requirements.html" class="text-gray-600 hover:text-yellow-600 transition">Persyaratan</a></li>
+                        <li><a href="login.html" class="text-gray-600 hover:text-yellow-600 transition">Login</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-3">Kontak</h3>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li class="flex items-center gap-2"><i class="fas fa-map-marker-alt w-5"></i> Jl. Semarang 5 Malang 65145 Jawa Timur – Indonesia</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-phone w-5"></i> (0341) 571035</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-envelope w-5"></i> library@um.ac.id</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-3">Jam Layanan</h3>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li class="flex items-center gap-2"><i class="fas fa-clock w-5"></i> Senin - Jumat : 08.00 - 15.00 WIB</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-clock w-5"></i> Sabtu : 09.00 - 14:00 WIB</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="text-center text-gray-400 text-sm pt-6 border-t border-gray-100">&copy; 2025 Perpustakaan Universitas Negeri Malang. All rights reserved.</div>
+        </div>
+    </footer>
+    <!-- Chart.js CDN for dashboard charts (dummy data) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="./js/admin.js"></script>
+</body>
+</html>

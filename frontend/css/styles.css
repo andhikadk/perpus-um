@@ -1,0 +1,164 @@
+/* Custom styles beyond Tailwind CSS */
+
+/* Smooth scrolling for the entire page */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Hover effect for cards */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Custom focus styles for better accessibility */
+:focus {
+  outline: 3px solid rgba(59, 130, 246, 0.5);
+  outline-offset: 2px;
+}
+
+/* Animation for the header book icon */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.fa-book-reader {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Custom form focus states */
+input:focus, select:focus, textarea:focus {
+  border-color: #1E3A8A;
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.2);
+}
+
+/* Button hover animation */
+.hover-scale-button {
+  transition: transform 0.3s ease;
+}
+
+.hover-scale-button:hover {
+  transform: scale(1.05);
+}
+
+/* Progress bar animation for process steps */
+.process-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.process-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transform: translateX(-100%);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Fade-in animation for page load */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+main {
+  animation: fadeIn 0.8s ease-out;
+}
+
+/* Accessibility improvements */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1E3A8A;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #1a326e;
+}
+
+html::-webkit-scrollbar {
+  width: 16px;
+  background: var(--primary-bg);
+}
+
+html::-webkit-scrollbar-thumb {
+  background: var(--status-active-bg);
+  border-radius: 8px;
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background: var(--status-inactive-bg);
+}
+
+html, body {
+  scrollbar-color: var(--status-active-bg) var(--primary-bg);
+  scrollbar-width: thin;
+}
+
+/* Ganti warna biru dan warna background di styles.css dengan variabel dari color.css agar sesuai tema cream/kuning */
+:root {
+  --primary-bg: #f9f9f9; /* Contoh warna background primer */
+  --container-bg: #ffffff; /* Contoh warna background kontainer */
+  --table-border: #e1e1e1; /* Contoh warna border tabel */
+}
+
+/* Terapkan variabel warna pada elemen yang sesuai */
+body {
+  background-color: var(--primary-bg);
+  color: #333;
+}
+
+.container {
+  background-color: var(--container-bg);
+  border: 1px solid var(--table-border);
+}
+
+/* Tambahkan kelas atau elemen lain yang perlu diterapkan warna sesuai tema */

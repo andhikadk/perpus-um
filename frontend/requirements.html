@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Library - Membership Requirements</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/color.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-gray-50 font-sans text-gray-900">
+    <!-- Header -->
+    <header class="bg-white backdrop-blur-md shadow-sm sticky top-0 z-20">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between px-6 py-4">
+            <div class="flex items-center gap-3 mb-2 md:mb-0">
+                <img src="./assets/logo-um.png" alt="UM Logo" class="h-10">
+                <span class="text-lg md:text-xl font-bold tracking-wide">Perpustakaan Universitas Negeri Malang</span>
+            </div>
+            <nav class="flex gap-2 md:gap-4 items-center mt-2 md:mt-0">
+                <a href="./index.html" class="px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition">Beranda</a>
+                <a href="about.html" class="px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition">Tentang</a>
+                <a href="requirements.html" class="px-4 py-2 rounded-lg font-medium bg-yellow-400 text-gray-900 hover:bg-yellow-500 transition">Persyaratan</a>
+                <a href="login.html" class="px-4 py-2 rounded-lg font-medium bg-gray-900 text-white hover:bg-gray-700 transition">Login</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="relative min-h-[420px] flex items-center justify-center bg-cover bg-center z-0 overflow-hidden" style="background-image: url('https://images.pexels.com/photos/590493/pexels-photo-590493.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750');">
+            <!-- Overlay gelap agar teks lebih terbaca -->
+            <div class="absolute top-0 left-0 w-full h-full bg-black opacity-70 z-10"></div>
+            <div class="relative z-20 max-w-3xl mx-auto text-center py-16 px-6">
+                <h1 class="text-3xl md:text-5xl font-extrabold mb-4 leading-tight text-white drop-shadow-lg">Persyaratan Keanggotaan Kartu Khusus Perpustakaan</h1>
+                <p class="text-lg md:text-xl mb-8 text-gray-100 drop-shadow">Untuk memastikan sumber daya kami tersedia bagi mereka yang paling membutuhkannya, kami telah menetapkan persyaratan berikut untuk keanggotaan perpustakaan.</p>
+            </div>
+        </section>
+
+        <div class="max-w-6xl mx-auto px-6 py-16">
+
+            <!-- Main Requirements -->
+            <div class="bg-white rounded-2xl p-8 shadow-sm hover:shadow-lg transition mb-12">
+                <h3 class="text-2xl font-bold mb-8">Langkah – langkah pembuatan Kartu Khusus di Perpustakaan Universitas Negeri Malang:</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="flex items-start gap-4">
+                        <div class="text-yellow-400 text-3xl">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold mb-2">Status Kewarganegaraan</h4>
+                            <p class="text-gray-600">Pastikan bahwa anda merupakan Warga Negara Indonesia.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start gap-4">
+                        <div class="text-yellow-400 text-3xl">
+                            <i class="fas fa-id-card"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold mb-2">Identifikasi yang Valid</h4>
+                            <p class="text-gray-600">Identitas yang masih berlaku, seperti KTP atau NIM.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start gap-4">
+                        <div class="text-yellow-400 text-3xl">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold mb-2">Verifikasi Email</h4>
+                            <p class="text-gray-600">Harus memberikan alamat email yang aktif, sebaiknya email institusi Anda, untuk verifikasi dan komunikasi akun.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start gap-4">
+                        <div class="text-yellow-400 text-3xl">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold mb-2">Afiliasi Instituasi/Lembaga</h4>
+                            <p class="text-gray-600">Harus berafiliasi dengan institusi atau lembaga yang diakui. Harap berikan informasi lengkap tentang fakultas dan program studi Anda.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Document Requirements -->
+            <div class="bg-yellow-50 rounded-2xl p-8 mb-12">
+                <h3 class="text-2xl font-bold mb-8">Dokumen yang Dibutuhkan</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition flex items-start gap-4">
+                        <div class="bg-yellow-400 text-white rounded-full h-8 w-8 flex items-center justify-center flex-shrink-0">
+                            <span class="font-bold">1</span>
+                        </div>
+                        <p class="text-gray-600">Kartu identitas yang valid (KTP/Kartu Mahasiswa akan diverifikasi saat kunjungan pertama)</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition flex items-start gap-4">
+                        <div class="bg-yellow-400 text-white rounded-full h-8 w-8 flex items-center justify-center flex-shrink-0">
+                            <span class="font-bold">2</span>
+                        </div>
+                        <p class="text-gray-600">Bukti status aktif (seperti jadwal kuliah atau surat verifikasi pendaftaran)</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition flex items-start gap-4">
+                        <div class="bg-yellow-400 text-white rounded-full h-8 w-8 flex items-center justify-center flex-shrink-0">
+                            <span class="font-bold">3</span>
+                        </div>
+                        <p class="text-gray-600">Foto ukuran passport terbaru untuk kartu anggota perpustakaan</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition flex items-start gap-4">
+                        <div class="bg-yellow-400 text-white rounded-full h-8 w-8 flex items-center justify-center flex-shrink-0">
+                            <span class="font-bold">4</span>
+                        </div>
+                        <p class="text-gray-600">Formulir pendaftaran online yang telah dilengkapi (tersedia setelah pembuatan akun)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Membership Terms -->
+            <div class="bg-white rounded-2xl p-8 shadow-sm hover:shadow-lg transition mb-12">
+                <h3 class="text-2xl font-bold mb-8">Syarat Keanggotaan</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="flex items-start gap-4">
+                        <div class="text-yellow-400 text-3xl">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold mb-2">Durasi</h4>
+                            <p class="text-gray-600">Keanggotaan perpustakaan berlaku selama satu bulan akademik dan bisa diperbarui setiap bulan.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start gap-4">
+                        <div class="text-yellow-400 text-3xl">
+                            <i class="fas fa-book-reader"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold mb-2">Hak Peminjaman</h4>
+                            <p class="text-gray-600">Anggota dapat meminjam hingga 5 buku dalam waktu bersamaan untuk periode 14 hari, dengan opsi perpanjangan satu kali jika tidak ada yang memesan.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start gap-4">
+                        <div class="text-yellow-400 text-3xl">
+                            <i class="fas fa-laptop-house"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold mb-2">Akses Digital</h4>
+                            <p class="text-gray-600">Anggota mendapatkan akses 24/7 ke sumber daya digital perpustakaan, termasuk e-book, jurnal, dan database.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start gap-4">
+                        <div class="text-yellow-400 text-3xl">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold mb-2">Tanggung Jawab</h4>
+                            <p class="text-gray-600">Anggota bertanggung jawab untuk mengembalikan bahan pinjaman tepat waktu dan dalam kondisi baik. Denda akan dikenakan untuk keterlambatan, kerusakan, atau kehilangan.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Application Process -->
+            <div class="bg-yellow-50 rounded-2xl p-8">
+                <h3 class="text-2xl font-bold mb-8">Proses Pendaftaran</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition flex items-start gap-4">
+                        <div class="bg-yellow-400 text-white rounded-full h-8 w-8 flex items-center justify-center flex-shrink-0">
+                            <span class="font-bold">1</span>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold mb-2">Pendaftaran Online</h4>
+                            <p class="text-gray-600">Lengkapi formulir pendaftaran online di website kami dengan semua informasi yang diperlukan.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition flex items-start gap-4">
+                        <div class="bg-yellow-400 text-white rounded-full h-8 w-8 flex items-center justify-center flex-shrink-0">
+                            <span class="font-bold">2</span>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold mb-2">Verifikasi Email</h4>
+                            <p class="text-gray-600">Verifikasi alamat email Anda dengan mengklik tautan yang dikirim ke email yang Anda daftarkan.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition flex items-start gap-4">
+                        <div class="bg-yellow-400 text-white rounded-full h-8 w-8 flex items-center justify-center flex-shrink-0">
+                            <span class="font-bold">3</span>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold mb-2">Verifikasi Langsung</h4>
+                            <p class="text-gray-600">Kunjungi perpustakaan dengan dokumen yang diperlukan untuk verifikasi secara langsung.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition flex items-start gap-4">
+                        <div class="bg-yellow-400 text-white rounded-full h-8 w-8 flex items-center justify-center flex-shrink-0">
+                            <span class="font-bold">4</span>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold mb-2">Penerbitan Kartu</h4>
+                            <p class="text-gray-600">Setelah verifikasi berhasil, kartu anggota perpustakaan Anda akan diterbitkan dan akun Anda akan sepenuhnya aktif.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registration CTA -->
+            <section class="py-16 bg-white mt-12 rounded-2xl">
+                <div class="max-w-3xl mx-auto px-6 text-center">
+                    <h2 class="text-2xl md:text-3xl font-bold mb-4">Siap Bergabung?</h2>
+                    <p class="text-lg text-gray-700 mb-8">Menjadi anggota perpustakaan itu mudah dan cepat. Daftar sekarang juga untuk mengakses koleksi sumber daya kami yang lengkap.</p>
+                    <a href="signup.html" class="font-bold py-3 px-8 rounded-lg bg-yellow-400 text-gray-900 hover:bg-yellow-500 transition text-lg shadow inline-block">Daftar Sekarang</a>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white/90 backdrop-blur-md mt-12 border-t border-gray-100">
+        <div class="max-w-6xl mx-auto px-6 py-10">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <h3 class="text-lg font-bold mb-3">Perpustakaan Universitas Negeri Malang</h3>
+                    <p class="text-gray-500">Menyediakan sumber daya dan layanan akademis untuk mendukung pendidikan dan penelitian.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-3">Akses Lain</h3>
+                    <ul class="space-y-2">
+                        <li><a href="./index.html" class="hover:underline">Beranda</a></li>
+                        <li><a href="about.html" class="hover:underline">Tentang</a></li>
+                        <li><a href="requirements.html" class="hover:underline">Persyaratan</a></li>
+                        <li><a href="login.html" class="hover:underline">Login</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-3">Kontak</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-center gap-2"><i class="fas fa-map-marker-alt w-5"></i> Jl. Semarang 5 Malang 65145 Jawa Timur – Indonesia</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-phone w-5"></i> (0341) 571035</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-envelope w-5"></i> library@um.ac.id</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-3">Jam Layanan Pendaftaran Kartu Khusus</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li>Senin - Jumat : 08.00 WIB - 15.00 WIB</li>
+                        <li>Sabtu : 09.00 WIB - 14:00 WIB</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="text-center text-gray-400 text-sm pt-6 border-t border-gray-100">&copy; 2025 Perpustakaan Universitas Negeri Malang. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <script src="./js/main.js"></script>
+</body>
+</html>

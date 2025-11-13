@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Library - Sign Up</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/color.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-gray-50 font-sans text-gray-900">
+    <!-- Header -->
+    <header class="bg-white backdrop-blur-md shadow-sm sticky top-0 z-20">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between px-6 py-4">
+            <div class="flex items-center gap-3 mb-2 md:mb-0">
+                <img src="./assets/logo-um.png" alt="UM Logo" class="h-10">
+                <span class="text-lg md:text-xl font-bold tracking-wide">Perpustakaan Universitas Negeri Malang</span>
+            </div>
+            <nav class="flex gap-2 md:gap-4 items-center mt-2 md:mt-0">
+                <a href="./index.html" class="px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition">Beranda</a>
+                <a href="about.html" class="px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition">Tentang</a>
+                <a href="requirements.html" class="px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition">Persyaratan</a>
+                <a href="login.html" class="px-4 py-2 rounded-lg font-medium bg-yellow-400 text-gray-900 hover:bg-yellow-500 transition">Login</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-2xl w-full bg-white rounded-2xl shadow-lg">
+            <div class="bg-yellow-400 py-4 px-6 rounded-t-2xl">
+                <h2 class="text-2xl font-bold text-gray-900 text-center">Pendaftaran Keanggotaan Perpustakaan</h2>
+            </div>
+            <div class="p-8">
+                <p class="text-gray-700 mb-6 text-center text-sm">Lengkapi formulir di bawah ini untuk mendaftar menjadi anggota perpustakaan. Semua kolom wajib diisi.</p>
+            
+                <form id="signupForm" class="space-y-6">
+                    <!-- Personal Information -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Informasi Pribadi</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="name" class="block text-gray-700 text-sm font-medium mb-1">Nama</label>
+                                <div class="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-yellow-400 transition-all duration-300">
+                                    <i class="fas fa-user text-gray-400 mr-3"></i>
+                                    <input type="text" id="name" name="name" required
+                                        class="appearance-none bg-transparent border-none w-full text-gray-700 py-1 px-2 leading-tight focus:outline-none">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="nim" class="block text-gray-700 text-sm font-medium mb-1">NIM/NIK</label>
+                                <div class="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-yellow-400 transition-all duration-300">
+                                    <i class="fas fa-id-card text-gray-400 mr-3"></i>
+                                    <input type="text" id="nim" name="nim" required
+                                        class="appearance-none bg-transparent border-none w-full text-gray-700 py-1 px-2 leading-tight focus:outline-none">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="birthPlace" class="block text-gray-700 text-sm font-medium mb-1">Tempat Lahir</label>
+                                <div class="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-yellow-400 transition-all duration-300">
+                                    <i class="fas fa-map-marker-alt text-gray-400 mr-3"></i>
+                                    <input type="text" id="birthPlace" name="birthPlace" required
+                                        class="appearance-none bg-transparent border-none w-full text-gray-700 py-1 px-2 leading-tight focus:outline-none"
+                                        placeholder="Kota/Kabupaten">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="birthDate" class="block text-gray-700 text-sm font-medium mb-1">Tanggal Lahir</label>
+                                <div class="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-yellow-400 transition-all duration-300">
+                                    <i class="fas fa-calendar-alt text-gray-400 mr-3"></i>
+                                    <input type="date" id="birthDate" name="birthDate" required
+                                        class="appearance-none bg-transparent border-none w-full text-gray-700 py-1 px-2 leading-tight focus:outline-none">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="email" class="block text-gray-700 text-sm font-medium mb-1">Email</label>
+                                <div class="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-yellow-400 transition-all duration-300">
+                                    <i class="fas fa-envelope text-gray-400 mr-3"></i>
+                                    <input type="email" id="email" name="email" required
+                                        class="appearance-none bg-transparent border-none w-full text-gray-700 py-1 px-2 leading-tight focus:outline-none">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="gender" class="block text-gray-700 text-sm font-medium mb-1">Jenis Kelamin</label>
+                                <div class="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-yellow-400 transition-all duration-300">
+                                    <i class="fas fa-venus-mars text-gray-400 mr-3"></i>
+                                    <select id="gender" name="gender" required
+                                        class="appearance-none bg-transparent border-none w-full text-gray-700 py-1 px-2 leading-tight focus:outline-none">
+                                        <option value="">Pilih Jenis Kelamin</option>
+                                        <option value="male">Laki-laki</option>
+                                        <option value="female">Perempuan</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="address" class="block text-gray-700 text-sm font-medium mb-1">Alamat</label>
+                                <div class="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-yellow-400 transition-all duration-300">
+                                    <i class="fas fa-home text-gray-400 mr-3"></i>
+                                    <textarea id="address" name="address" required rows="1"
+                                        oninput="this.style.height='auto'; this.style.height = this.scrollHeight + 'px';"
+                                        class="appearance-none bg-transparent border-none w-full text-gray-700 py-1 px-2 leading-tight focus:outline-none resize-none h-10 max-h-48 overflow-auto"
+                                        placeholder="Masukkan alamat lengkap (jalan, kota, kode pos)"></textarea>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="photo" class="block text-gray-700 text-sm font-medium mb-1">Pas Foto 2x3</label>
+                                <div class="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-yellow-400 transition-all duration-300">
+                                    <i class="fas fa-camera text-gray-400 mr-3"></i>
+                                    <input type="file" id="photo" name="photo" accept="image/png, image/jpeg" required
+                                        class="bg-transparent border-none w-full text-gray-700 py-1 px-2 leading-tight focus:outline-none" />
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Format: .jpg / .jpeg / .png — Ukuran maksimal disarankan 200KB. (3x4)</p>
+                            </div>
+
+                            <div>
+                                <label for="signatureCanvas" class="block text-gray-700 text-sm font-medium mb-1">Tanda Tangan (TTD)</label>
+                                <div class="border rounded-lg p-3 bg-white">
+                                    <canvas id="signatureCanvas" width="600" height="200" class="w-full h-36 bg-white" style="touch-action: none; border:1px dashed #e5e7eb;"></canvas>
+                                    <div class="flex items-center gap-3 mt-3">
+                                        <button type="button" id="clearSig" class="bg-gray-100 text-gray-800 px-3 py-1 rounded-md hover:bg-gray-200">Bersihkan</button>
+                                        <button type="button" id="saveSig" class="bg-yellow-400 text-gray-900 px-3 py-1 rounded-md hover:bg-yellow-500">Simpan TTD</button>
+                                        <span id="sigStatus" class="text-sm text-gray-500 ml-2">Belum disimpan</span>
+                                    </div>
+                                    <input type="hidden" id="signature" name="signature">
+                                    <p class="text-xs text-gray-500 mt-2">Gunakan mouse atau sentuh untuk menandatangani. Tekan "Simpan TTD" setelah selesai.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Academic Information -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Informasi Institusi/Lembaga</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="program" class="block text-gray-700 text-sm font-medium mb-1">Asal Lembaga</label>
+                                <div class="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-yellow-400 transition-all duration-300">
+                                    <i class="fas fa-building text-gray-400 mr-3"></i>
+                                    <input type="text" id="program" name="program" required
+                                        class="appearance-none bg-transparent border-none w-full text-gray-700 py-1 px-2 leading-tight focus:outline-none">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="profession" class="block text-gray-700 text-sm font-medium mb-1">Profesi</label>
+                                <div class="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-yellow-400 transition-all duration-300">
+                                    <i class="fas fa-briefcase text-gray-400 mr-3"></i>
+                                    <input type="text" id="profession" name="profession" required placeholder="Masukkan profesi atau jabatan"
+                                        class="appearance-none bg-transparent border-none w-full text-gray-700 py-1 px-2 leading-tight focus:outline-none">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="institution" class="block text-gray-700 text-sm font-medium mb-1">Fakultas/Program Studi</label>
+                                <div class="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-yellow-400 transition-all duration-300">
+                                    <i class="fas fa-book text-gray-400 mr-3"></i>
+                                    <input type="text" id="institution" name="institution" required
+                                        placeholder="Masukkan fakultas/program studi — isi '-' jika tidak kuliah"
+                                        class="appearance-none bg-transparent border-none w-full text-gray-700 py-1 px-2 leading-tight focus:outline-none">
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Isi '-' jika tidak sedang berkuliah atau bukan mahasiswa.</p>
+                            </div>
+                            <div>
+                                <label for="registrationDate" class="block text-gray-700 text-sm font-medium mb-1">Tanggal Pendaftaran</label>
+                                <div class="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-yellow-400 transition-all duration-300">
+                                    <i class="fas fa-calendar text-gray-400 mr-3"></i>
+                                    <input type="date" id="registrationDate" name="registrationDate" required
+                                        class="appearance-none bg-transparent border-none w-full text-gray-700 py-1 px-2 leading-tight focus:outline-none">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="paymentProof" class="block text-gray-700 text-sm font-medium mb-1">Bukti Transfer</label>
+                                <div class="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-yellow-400 transition-all duration-300">
+                                    <i class="fas fa-file-invoice-dollar text-gray-400 mr-3"></i>
+                                    <input type="file" id="paymentProof" name="paymentProof" accept="image/png, image/jpeg, application/pdf" required
+                                        class="bg-transparent border-none w-full text-gray-700 py-1 px-2 leading-tight focus:outline-none" />
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Unggah bukti transfer (.jpg, .png, atau .pdf), maksimal 1MB.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Terms and Conditions -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Persetujuan</h3>
+                        <div class="space-y-3 p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-start">
+                                <input type="checkbox" id="terms" name="terms" required
+                                    class="mt-1 h-4 w-4 text-yellow-400 rounded border-gray-300 focus:ring-yellow-400">
+                                <label for="terms" class="ml-2 text-sm text-gray-700">
+                                    Saya telah membaca dan menyetujui <a href="#" class="text-yellow-600 hover:text-yellow-700 font-medium">Syarat dan Ketentuan</a> dan <a href="#" class="text-yellow-600 hover:text-yellow-700 font-medium">Kebijakan Privasi</a>
+                                </label>
+                            </div>
+                            <div class="flex items-start">
+                                <input type="checkbox" id="requirements" name="requirements" required
+                                    class="mt-1 h-4 w-4 text-yellow-400 rounded border-gray-300 focus:ring-yellow-400">
+                                <label for="requirements" class="ml-2 text-sm text-gray-700">
+                                    Saya mengonfirmasi bahwa saya memenuhi semua <a href="requirements.html" class="text-yellow-600 hover:text-yellow-700 font-medium">persyaratan keanggotaan</a>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center pt-6">
+                        <button type="submit" 
+                            class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 px-8 rounded-lg transition duration-300 focus:outline-none focus:shadow-outline">
+                            Daftar
+                        </button>
+                        <p class="mt-4 text-gray-700 text-sm">Sudah punya akun? <a href="login.html" class="text-yellow-600 hover:text-yellow-700 font-medium transition duration-300">Login disini</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white/90 backdrop-blur-md mt-12 border-t border-gray-100">
+        <div class="max-w-6xl mx-auto px-6 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <h3 class="text-lg font-bold mb-3">Perpustakaan Universitas Negeri Malang</h3>
+                    <p class="text-gray-500 text-sm">Menyediakan sumber daya dan layanan akademis untuk mendukung pendidikan dan penelitian.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-3">Akses Lain</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="./index.html" class="text-gray-600 hover:text-yellow-600 transition">Beranda</a></li>
+                        <li><a href="about.html" class="text-gray-600 hover:text-yellow-600 transition">Tentang</a></li>
+                        <li><a href="requirements.html" class="text-gray-600 hover:text-yellow-600 transition">Persyaratan</a></li>
+                        <li><a href="login.html" class="text-gray-600 hover:text-yellow-600 transition">Login</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-3">Kontak</h3>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li class="flex items-center gap-2"><i class="fas fa-map-marker-alt w-5"></i> Jl. Semarang 5 Malang 65145 Jawa Timur – Indonesia</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-phone w-5"></i> (0341) 571035</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-envelope w-5"></i> library@um.ac.id</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-3">Jam Layanan</h3>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li class="flex items-center gap-2"><i class="fas fa-clock w-5"></i> Senin - Jumat : 08.00 - 15.00 WIB</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-clock w-5"></i> Sabtu : 09.00 - 14:00 WIB</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="text-center text-gray-400 text-sm pt-6 border-t border-gray-100">&copy; 2025 Perpustakaan Universitas Negeri Malang. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <script src="./js/config.js"></script>
+    <script src="./js/validation.js"></script>
+    <script src="./js/main.js"></script>
+    <script src="./js/signup.js"></script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Library - About</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/color.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-gray-50 font-sans text-gray-900">
+    <!-- Header -->
+    <header class="bg-white backdrop-blur-md shadow-sm sticky top-0 z-20">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between px-6 py-4">
+            <div class="flex items-center gap-3 mb-2 md:mb-0">
+                <img src="./assets/logo-um.png" alt="UM Logo" class="h-10">
+                <span class="text-lg md:text-xl font-bold tracking-wide">Perpustakaan Universitas Negeri Malang</span>
+            </div>
+            <nav class="flex gap-2 md:gap-4 items-center mt-2 md:mt-0">
+                <a href="./index.html" class="px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition">Beranda</a>
+                <a href="about.html" class="px-4 py-2 rounded-lg font-medium bg-yellow-400 text-gray-900 hover:bg-yellow-500 transition">Tentang</a>
+                <a href="requirements.html" class="px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition">Persyaratan</a>
+                <a href="login.html" class="px-4 py-2 rounded-lg font-medium bg-gray-900 text-white hover:bg-gray-700 transition">Login</a>
+            </nav>
+        </div>
+    </header>    <main>
+        <!-- Hero Section -->
+        <section class="relative min-h-[420px] flex items-center justify-center bg-cover bg-center z-0 overflow-hidden" style="background-image: url('https://images.pexels.com/photos/1370296/pexels-photo-1370296.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750');">
+            <!-- Overlay gelap agar teks lebih terbaca -->
+            <div class="absolute top-0 left-0 w-full h-full bg-black opacity-70 z-10"></div>
+            <div class="relative z-20 max-w-2xl mx-auto text-center py-16 px-6">
+                <h1 class="text-3xl md:text-5xl font-extrabold mb-4 leading-tight text-white drop-shadow-lg">Informasi Anggota Kartu Khusus</h1>
+                <p class="text-lg md:text-xl mb-8 text-gray-100 drop-shadow">Dengan memiliki Kartu Khusus ini, pengunjung umum dapat menggunakan fasilitas perpustakaan UM.</p>
+            </div>
+        </section>
+
+        <!-- Information Section -->
+        <section class="py-16 bg-white">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-bold mb-6">Layanan yang Didapatkan</h2>
+                        <ul class="space-y-4 text-gray-700">
+                            <li class="flex gap-3">
+                                <i class="fas fa-check-circle text-yellow-400 mt-1"></i>
+                                <span>Dapat memanfaatkan seluruh koleksi/informasi di perpustakaan UM sesuai ketentuan yang berlaku</span>
+                            </li>
+                            <li class="flex gap-3">
+                                <i class="fas fa-check-circle text-yellow-400 mt-1"></i>
+                                <span>Pemanfaatan koleksi/informasi bagi pemegang Kartu Khusus ini terbatas hanya untuk dimanfaatkan di dalam perpustakaan (baca di tempat dan fotokopi), dan tidak dapat dipinjam pulang</span>
+                            </li>
+                            <li class="flex gap-3">
+                                <i class="fas fa-check-circle text-yellow-400 mt-1"></i>
+                                <span>Kartu Khusus hanya berlaku di perpustakaan universitas (perpustakaan pusat), tidak berlaku di perpustakaan fakultas, jurusan, lembaga, atau pusat studi</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <img src="https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" alt="Library Collection" class="rounded-2xl shadow-lg">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+           <!-- Facilities Section -->
+        <section class="py-16 bg-gray-50">
+            <div class="max-w-6xl mx-auto px-6">
+                <h2 class="text-2xl md:text-3xl font-bold text-center mb-12">Fasilitas</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-2xl p-8 flex items-start gap-6 shadow-sm hover:shadow-lg transition">
+                        <div class="text-yellow-400 text-4xl">
+                            <i class="fas fa-laptop"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-3">Laboratorium Komputer</h3>
+                            <p class="text-gray-600">Laboratorium komputer modern kami menyediakan akses ke perangkat lunak terbaru dan internet berkecepatan tinggi untuk keperluan penelitian dan studi.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-2xl p-8 flex items-start gap-6 shadow-sm hover:shadow-lg transition">
+                        <div class="text-yellow-400 text-4xl">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-3">Ruang Baca</h3>
+                            <p class="text-gray-600">Ruang baca yang tenang dan terang dirancang untuk belajar individual dan bekerja dengan fokus.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-2xl p-8 flex items-start gap-6 shadow-sm hover:shadow-lg transition">
+                        <div class="text-yellow-400 text-4xl">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-3">Ruang Kolaborasi</h3>
+                            <p class="text-gray-600">Ruang belajar kelompok yang dilengkapi dengan papan tulis dan fasilitas presentasi untuk proyek kolaboratif.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-2xl p-8 flex items-start gap-6 shadow-sm hover:shadow-lg transition">
+                        <div class="text-yellow-400 text-4xl">
+                            <i class="fas fa-coffee"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-3">Kafe Pustaka</h3>
+                            <p class="text-gray-600">Suasana santai tempat pemustaka dapat beristirahat, menikmati minuman, dan terlibat dalam diskusi santai.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+               <!-- Footer -->
+    <footer class="bg-white/90 backdrop-blur-md mt-12 border-t border-gray-100">
+        <div class="max-w-6xl mx-auto px-6 py-10">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <h3 class="text-lg font-bold mb-3">Perpustakaan Universitas Negeri Malang</h3>
+                    <p class="text-gray-500">Menyediakan sumber daya dan layanan akademis untuk mendukung pendidikan dan penelitian.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-3">Akses Lain</h3>
+                    <ul class="space-y-2">
+                        <li><a href="./index.html" class="hover:underline">Beranda</a></li>
+                        <li><a href="about.html" class="hover:underline">Tentang</a></li>
+                        <li><a href="requirements.html" class="hover:underline">Persyaratan</a></li>
+                        <li><a href="login.html" class="hover:underline">Login</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-3">Kontak</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-center gap-2"><i class="fas fa-map-marker-alt w-5"></i> Jl. Semarang 5 Malang 65145 Jawa Timur – Indonesia</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-phone w-5"></i> (0341) 571035</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-envelope w-5"></i> library@um.ac.id</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-3">Jam Layanan Pendaftaran Kartu Khusus</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li>Senin - Jumat : 08.00 WIB - 15.00 WIB</li>
+                        <li>Sabtu : 09.00 WIB - 14:00 WIB</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="text-center text-gray-400 text-sm pt-6 border-t border-gray-100">&copy; 2025 Perpustakaan Universitas Negeri Malang. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <script src="./js/main.js"></script>
+</body>
+</html>

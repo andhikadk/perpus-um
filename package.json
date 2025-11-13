@@ -1,0 +1,34 @@
+{
+  "name": "library-membership-system",
+  "description": "Library Special Card Membership Management System (Perpustakaan Universitas Negeri Malang)",
+  "version": "1.0.0",
+  "private": true,
+  "author": "Development Team",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "server": "node backend/server.js",
+    "server:dev": "nodemon backend/server.js"
+  },
+  "keywords": [
+    "library",
+    "membership",
+    "card",
+    "registration",
+    "admin"
+  ],
+  "devDependencies": {
+    "vite": "^5.4.2",
+    "nodemon": "^3.0.0"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.0"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  }
+}
