@@ -26,8 +26,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // CORS configuration
 app.use(cors({
-  origin: ['http://localhost:8000', 'http://localhost:5173', 'http://127.0.0.1:8000'],
-  credentials: true
+  origin: '*'
 }));
 
 // Body parser
