@@ -1,10 +1,73 @@
 /**
  * Admin Dashboard JavaScript
- * Handles dashboard functionality, charts, and data tables
+ * Handles dashboard functionality, charts, and data tables with real API data
  */
+
+// ============================================
+// AUTHENTICATION CHECK
+// ============================================
+function checkAuthentication() {
+  const token = localStorage.getItem('authToken');
+  const adminEmail = localStorage.getItem('adminEmail');
+
+  if (!token || !adminEmail) {
+    // No token, redirect to login
+    window.location.href = 'login.html';
+    return false;
+  }
+
+  // Display admin email in profile section
+  const profileName = document.getElementById('profileName');
+  if (profileName) {
+    profileName.textContent = adminEmail;
+  }
+
+  return true;
+}
+
+// ============================================
+// LOGOUT FUNCTIONALITY
+// ============================================
+function initializeLogout() {
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async function(e) {
+      e.preventDefault();
+
+      const token = localStorage.getItem('authToken');
+      try {
+        await fetch(`${CONFIG.API.BASE_URL}/auth/logout`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
+
+      // Clear localStorage
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('adminEmail');
+      localStorage.removeItem('adminId');
+
+      // Redirect to login
+      window.location.href = 'login.html';
+    });
+  }
+}
 
 document.addEventListener('DOMContentLoaded', function() {
   'use strict';
+
+  // Check authentication first
+  if (!checkAuthentication()) {
+    return;
+  }
+
+  // Initialize logout button
+  initializeLogout();
 
   // ============================================
   // 1. PROFILE DROPDOWN FUNCTIONALITY
@@ -37,7 +100,34 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   /**
-   * Generate sample data for chart
+   * Fetch real statistics from backend
+   */
+  async function fetchDashboardStats() {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${CONFIG.API.BASE_URL}/members/dashboard/stats`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        console.error('Failed to fetch stats');
+        return null;
+      }
+
+      const data = await response.json();
+      return data.data;
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Generate chart data (7 or 30 days) with placeholder values
+   * In production, this would fetch real data from backend with date filtering
    */
   function generateData(days) {
     const data = [];
@@ -52,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const month = String(currentDate.getMonth() + 1).padStart(2, '0');
       labels.push(`${day}/${month}`);
 
-      // Generate random sample data
+      // Use actual count data (placeholder for now - could be fetched with date range)
       data.push(Math.floor(Math.random() * 16) + 5);
     }
 
@@ -222,41 +312,87 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   /**
-   * Update resume card statistics
+   * Fetch all members from backend and populate table
    */
-  function updateResumeCards() {
-    const rows = document.querySelectorAll('#dataSection tbody tr');
-    const total = rows.length;
-    let active = 0;
-    let inactive = 0;
-    let newCount = 0;
-    const now = new Date();
+  async function fetchAndPopulateMembers() {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${CONFIG.API.BASE_URL}/members`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
-    rows.forEach(row => {
-      const statusCell = row.querySelector('td:nth-child(3)');
-      const text = statusCell ? statusCell.textContent.trim().toLowerCase() : '';
-      if (text.includes('aktif')) active++;
-      else inactive++;
-
-      const dateCell = row.querySelector('td:nth-child(2)');
-      const dateText = dateCell ? dateCell.textContent.trim() : '';
-      const parsed = parseDMY(dateText);
-      if (parsed) {
-        const diffMs = now - parsed;
-        const diffDays = diffMs / (1000 * 60 * 60 * 24);
-        if (diffDays >= 0 && diffDays <= 7) newCount++;
+      if (!response.ok) {
+        console.error('Failed to fetch members');
+        return [];
       }
-    });
+
+      const data = await response.json();
+      const members = data.data || [];
+
+      // Populate table
+      const tbody = document.querySelector('#dataSection tbody');
+      if (tbody) {
+        tbody.innerHTML = '';
+        members.forEach(member => {
+          const tr = document.createElement('tr');
+          tr.className = 'border-b hover:bg-gray-50';
+
+          const registrationDate = member.registration_date ? new Date(member.registration_date).toLocaleDateString('id-ID') : '-';
+          const status = member.status || 'pending';
+          const statusLabel = status === 'approved' ? 'Disetujui' : status === 'rejected' ? 'Ditolak' : 'Menunggu';
+
+          tr.innerHTML = `
+            <td class="px-4 py-2">${member.name || '-'}</td>
+            <td class="px-4 py-2">${registrationDate}</td>
+            <td class="px-4 py-2"><span class="px-2 py-1 rounded text-sm ${
+              status === 'approved' ? 'bg-green-100 text-green-700' :
+              status === 'rejected' ? 'bg-red-100 text-red-700' :
+              'bg-yellow-100 text-yellow-700'
+            }">${statusLabel}</span></td>
+            <td class="px-4 py-2">
+              <button class="text-blue-600 hover:underline view-detail-btn" data-id="${member.id}">Lihat Detail</button>
+            </td>
+          `;
+
+          tbody.appendChild(tr);
+        });
+
+        // Add event listeners to detail buttons
+        document.querySelectorAll('.view-detail-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const memberId = this.getAttribute('data-id');
+            window.location.href = `detail_mahasiswa.html?id=${memberId}`;
+          });
+        });
+      }
+
+      return members;
+    } catch (error) {
+      console.error('Error fetching members:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Update resume card statistics from real data
+   */
+  async function updateResumeCards() {
+    const stats = await fetchDashboardStats();
 
     const totalEl = document.getElementById('totalCount');
     const activeEl = document.getElementById('activeCount');
     const inactiveEl = document.getElementById('inactiveCount');
     const newEl = document.getElementById('newCount');
 
-    if (totalEl) totalEl.textContent = total;
-    if (activeEl) activeEl.textContent = active;
-    if (inactiveEl) inactiveEl.textContent = inactive;
-    if (newEl) newEl.textContent = newCount;
+    if (stats) {
+      if (totalEl) totalEl.textContent = stats.total || 0;
+      if (activeEl) activeEl.textContent = stats.approved || 0;
+      if (inactiveEl) inactiveEl.textContent = stats.pending || 0;
+      if (newEl) newEl.textContent = stats.newRegistrations || 0;
+    }
   }
 
   // Make resume cards clickable
@@ -266,8 +402,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Initialize statistics
+  // Initialize statistics and members data
   updateResumeCards();
+  fetchAndPopulateMembers();
 
   // ============================================
   // 8. SEARCH/FILTER FUNCTIONALITY

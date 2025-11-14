@@ -11,6 +11,7 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { testConnection } from './src/config/database.js';
 import memberRoutes from './src/routes/memberRoutes.js';
+import authRoutes from './src/routes/authRoutes.js';
 
 dotenv.config();
 
@@ -42,6 +43,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // API Routes
 app.use('/api/members', memberRoutes);
+app.use('/api/auth', authRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -55,6 +57,9 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     endpoints: {
       health: 'GET /api/health',
+      login: 'POST /api/auth/login',
+      verify: 'POST /api/auth/verify',
+      logout: 'POST /api/auth/logout',
       register: 'POST /api/members/register',
       getAll: 'GET /api/members',
       getById: 'GET /api/members/:id',
@@ -121,6 +126,9 @@ const startServer = async () => {
       console.log(`\n✅ Backend Server is running on http://localhost:${PORT}`);
       console.log(`📚 API Docs available at http://localhost:${PORT}`);
       console.log(`\n--- Endpoints ---`);
+      console.log(`POST   /api/auth/login                 - Login admin`);
+      console.log(`POST   /api/auth/verify                - Verify token`);
+      console.log(`POST   /api/auth/logout                - Logout admin`);
       console.log(`POST   /api/members/register           - Register new member`);
       console.log(`GET    /api/members                    - Get all members`);
       console.log(`GET    /api/members/:id                - Get member by ID`);

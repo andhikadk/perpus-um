@@ -14,6 +14,7 @@ import {
   getDashboardStats
 } from '../controllers/memberController.js';
 import { upload } from '../middleware/upload.js';
+import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -38,37 +39,38 @@ router.post('/register', upload.fields([
 router.get('/search', searchMembers);
 
 // ============================================
-// PROTECTED ROUTES (Admin only - coming in Phase 3)
+// PROTECTED ROUTES (Admin only - JWT required)
 // ============================================
 
 /**
  * GET /api/members
- * Get all members
+ * Get all members (Admin only)
  */
-router.get('/', getAllMembers);
+router.get('/', authenticateToken, getAllMembers);
+
+/**
+ * GET /api/members/dashboard/stats
+ * Get dashboard statistics (Admin only)
+ * Note: Must come before /:id route to avoid matching as /:id
+ */
+router.get('/dashboard/stats', authenticateToken, getDashboardStats);
 
 /**
  * GET /api/members/:id
- * Get member by ID
+ * Get member by ID (Admin only)
  */
-router.get('/:id', getMemberById);
+router.get('/:id', authenticateToken, getMemberById);
 
 /**
  * PUT /api/members/:id/approve
- * Approve member registration
+ * Approve member registration (Admin only)
  */
-router.put('/:id/approve', approveMember);
+router.put('/:id/approve', authenticateToken, approveMember);
 
 /**
  * PUT /api/members/:id/reject
- * Reject member registration
+ * Reject member registration (Admin only)
  */
-router.put('/:id/reject', rejectMember);
-
-/**
- * GET /api/dashboard/stats
- * Get dashboard statistics
- */
-router.get('/dashboard/stats', getDashboardStats);
+router.put('/:id/reject', authenticateToken, rejectMember);
 
 export default router;

@@ -11,9 +11,45 @@ function getQueryParam(param) {
   return urlParams.get(param) || '';
 }
 
+/**
+ * Initialize logout functionality
+ */
+function initializeLogout() {
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async function(e) {
+      e.preventDefault();
+
+      const token = localStorage.getItem('authToken');
+      try {
+        await fetch(`${CONFIG.API.BASE_URL}/auth/logout`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
+
+      // Clear localStorage
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('adminEmail');
+      localStorage.removeItem('adminId');
+
+      // Redirect to login
+      window.location.href = 'login.html';
+    });
+  }
+}
+
 // Initialize page on DOM ready
 window.addEventListener('DOMContentLoaded', function() {
   'use strict';
+
+  // Initialize logout button
+  initializeLogout();
 
   // ============================================
   // 1. LOAD MEMBER DATA FROM URL PARAMETERS
