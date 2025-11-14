@@ -4,8 +4,8 @@ export default defineConfig({
   root: 'frontend',
   server: {
     port: 5173,
-    host: 'localhost',
-    open: true,
+    host: '0.0.0.0',
+    open: false,
   },
   build: {
     outDir: 'dist',

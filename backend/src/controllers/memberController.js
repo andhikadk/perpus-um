@@ -220,9 +220,9 @@ export const approveMember = async (req, res) => {
     const { id } = req.params;
     const connection = await pool.getConnection();
 
-    // Calculate membership expiry date (1 year from now)
+    // Calculate membership expiry date (1 month from now)
     const expiryDate = new Date();
-    expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+    expiryDate.setMonth(expiryDate.getMonth() + 1);
     const expiryDateString = expiryDate.toISOString().split('T')[0];
 
     // Update member status and set expiry date
@@ -465,13 +465,13 @@ export const approveRenewal = async (req, res) => {
     const renewal = renewalData[0];
     const currentExpiryDate = renewal.membership_expiry_date ? new Date(renewal.membership_expiry_date) : new Date();
 
-    // Calculate new expiry date (extend 1 year from current expiry or from today if expired)
+    // Calculate new expiry date (extend 1 month from current expiry or from today if expired)
     const newExpiryDate = new Date(currentExpiryDate);
     if (currentExpiryDate < new Date()) {
       // If already expired, count from today
       newExpiryDate.setDate(new Date().getDate());
     }
-    newExpiryDate.setFullYear(newExpiryDate.getFullYear() + 1);
+    newExpiryDate.setMonth(newExpiryDate.getMonth() + 1);
     const newExpiryDateString = newExpiryDate.toISOString().split('T')[0];
 
     // Update renewal status and member expiry date

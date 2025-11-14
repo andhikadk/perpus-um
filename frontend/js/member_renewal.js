@@ -134,7 +134,12 @@ document.addEventListener('DOMContentLoaded', function() {
           }
         }
         document.getElementById('displayRegDate').innerHTML = expiryInfo + ' <small class="text-gray-500">(Masa berlaku keanggotaan)</small>';
-        document.getElementById('displayRegDate').parentElement.querySelector('label').textContent = 'Masa Berlaku Keanggotaan';
+
+        // Update the label text from "Tanggal Daftar" to "Masa Berlaku Keanggotaan"
+        const strongLabel = document.getElementById('displayRegDate').parentElement.querySelector('strong');
+        if (strongLabel) {
+          strongLabel.textContent = 'Masa Berlaku Keanggotaan:';
+        }
 
         // Color the status based on state
         statusElement.classList.remove('text-green-700', 'text-red-700', 'text-yellow-700');
@@ -145,8 +150,6 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
           statusElement.classList.add('text-yellow-700');
         }
-
-        document.getElementById('displayRegDate').textContent = formatDate(member.registration_date);
 
         // Check if member is eligible for renewal (must be approved)
         const eligibleBox = document.getElementById('eligibleBox');
