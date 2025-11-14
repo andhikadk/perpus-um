@@ -12,10 +12,13 @@ import {
   approveMember,
   rejectMember,
   getDashboardStats,
+  getProfessionStats,
+  getRegistrationTrend,
   requestRenewal,
   getRenewals,
   approveRenewal,
-  rejectRenewal
+  rejectRenewal,
+  deleteMember
 } from '../controllers/memberController.js';
 import { upload } from '../middleware/upload.js';
 import { authenticateToken } from '../middleware/auth.js';
@@ -60,6 +63,21 @@ router.get('/', authenticateToken, getAllMembers);
 router.get('/dashboard/stats', authenticateToken, getDashboardStats);
 
 /**
+ * GET /api/members/dashboard/profession-stats
+ * Get profession statistics for pie chart (Admin only)
+ * Note: Must come before /:id route to avoid matching as /:id
+ */
+router.get('/dashboard/profession-stats', authenticateToken, getProfessionStats);
+
+/**
+ * GET /api/members/dashboard/registration-trend
+ * Get registration trend for line chart (Admin only)
+ * Query params: days (optional, default 30)
+ * Note: Must come before /:id route to avoid matching as /:id
+ */
+router.get('/dashboard/registration-trend', authenticateToken, getRegistrationTrend);
+
+/**
  * GET /api/members/:id
  * Get member by ID (Admin only)
  */
@@ -76,6 +94,12 @@ router.put('/:id/approve', authenticateToken, approveMember);
  * Reject member registration (Admin only)
  */
 router.put('/:id/reject', authenticateToken, rejectMember);
+
+/**
+ * DELETE /api/members/:id
+ * Delete member (Admin only)
+ */
+router.delete('/:id', authenticateToken, deleteMember);
 
 // ============================================
 // RENEWAL ROUTES (Admin only - JWT required)

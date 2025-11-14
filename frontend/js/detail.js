@@ -169,9 +169,13 @@ window.addEventListener('DOMContentLoaded', async function() {
   // ============================================
   const approveBtn = document.getElementById('approve-btn');
   const rejectBtn = document.getElementById('reject-btn');
+  const deleteBtn = document.getElementById('delete-btn');
   const rejectionModal = document.getElementById('rejectionModal');
   const rejectionForm = document.getElementById('rejectionForm');
   const cancelRejectionBtn = document.getElementById('cancelRejectionBtn');
+  const deleteModal = document.getElementById('deleteModal');
+  const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+  const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
 
   if (approveBtn) {
     approveBtn.addEventListener('click', async function() {
@@ -283,6 +287,68 @@ window.addEventListener('DOMContentLoaded', async function() {
       rejectionForm.reset();
     }
   });
+
+  // ============================================
+  // DELETE FUNCTIONALITY
+  // ============================================
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', function() {
+      // Show delete confirmation modal
+      deleteModal.classList.remove('hidden');
+    });
+  }
+
+  if (cancelDeleteBtn) {
+    cancelDeleteBtn.addEventListener('click', function() {
+      deleteModal.classList.add('hidden');
+    });
+  }
+
+  if (confirmDeleteBtn) {
+    confirmDeleteBtn.addEventListener('click', async function() {
+      // Show loading state
+      confirmDeleteBtn.disabled = true;
+      confirmDeleteBtn.textContent = 'Menghapus...';
+
+      try {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`${CONFIG.API.BASE_URL}/members/${memberId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert('Gagal menghapus: ' + (data.message || 'Server error'));
+          confirmDeleteBtn.disabled = false;
+          confirmDeleteBtn.textContent = 'Ya, Hapus';
+          return;
+        }
+
+        // Success
+        alert('Data anggota berhasil dihapus');
+        window.location.href = 'view_table_mahasiswa.html#data';
+      } catch (error) {
+        console.error('Delete error:', error);
+        alert('Terjadi kesalahan: ' + error.message);
+        confirmDeleteBtn.disabled = false;
+        confirmDeleteBtn.textContent = 'Ya, Hapus';
+      }
+    });
+  }
+
+  // Close delete modal when clicking outside
+  if (deleteModal) {
+    deleteModal.addEventListener('click', function(e) {
+      if (e.target === deleteModal) {
+        deleteModal.classList.add('hidden');
+      }
+    });
+  }
 
   const backBtn = document.getElementById('back-btn');
   if (backBtn) {

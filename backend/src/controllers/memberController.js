@@ -321,18 +321,21 @@ export const getDashboardStats = async (req, res) => {
       'SELECT COUNT(*) as total FROM members'
     );
 
-    const [approvedStats] = await connection.query(
-      'SELECT COUNT(*) as approved FROM members WHERE status = "approved"'
+    // Active members: approved AND (not expired OR no expiry date set)
+    const [activeStats] = await connection.query(
+      `SELECT COUNT(*) as active FROM members
+       WHERE status = "approved"
+       AND (membership_expiry_date >= CURDATE() OR membership_expiry_date IS NULL)`
     );
 
-    const [pendingStats] = await connection.query(
-      'SELECT COUNT(*) as pending FROM members WHERE status = "pending"'
+    // Inactive members: pending, rejected, or expired approved members
+    const [inactiveStats] = await connection.query(
+      `SELECT COUNT(*) as inactive FROM members
+       WHERE status IN ("pending", "rejected")
+       OR (status = "approved" AND membership_expiry_date < CURDATE())`
     );
 
-    const [rejectedStats] = await connection.query(
-      'SELECT COUNT(*) as rejected FROM members WHERE status = "rejected"'
-    );
-
+    // New registrations in last 7 days
     const [newStats] = await connection.query(
       `SELECT COUNT(*) as new FROM members
        WHERE registration_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)`
@@ -342,14 +345,105 @@ export const getDashboardStats = async (req, res) => {
 
     return successResponse(res, {
       total: totalStats[0].total,
-      approved: approvedStats[0].approved,
-      pending: pendingStats[0].pending,
-      rejected: rejectedStats[0].rejected,
+      active: activeStats[0].active,
+      inactive: inactiveStats[0].inactive,
       newRegistrations: newStats[0].new
     }, 'Statistik dashboard');
   } catch (error) {
     console.error('Stats error:', error);
     return errorResponse(res, 'Gagal mengambil statistik', 500, error.message);
+  }
+};
+
+// ============================================
+// GET PROFESSION STATISTICS
+// ============================================
+export const getProfessionStats = async (req, res) => {
+  try {
+    const connection = await pool.getConnection();
+
+    // Get profession statistics for approved members only
+    const [professionStats] = await connection.query(
+      `SELECT profession, COUNT(*) as count
+       FROM members
+       WHERE status = "approved" AND profession IN ("Mahasiswa", "Umum")
+       GROUP BY profession`
+    );
+
+    connection.release();
+
+    // Format the result for pie chart
+    const result = {
+      Mahasiswa: 0,
+      Umum: 0
+    };
+
+    professionStats.forEach(stat => {
+      if (stat.profession === 'Mahasiswa' || stat.profession === 'Umum') {
+        result[stat.profession] = stat.count;
+      }
+    });
+
+    return successResponse(res, result, 'Statistik profesi');
+  } catch (error) {
+    console.error('Profession stats error:', error);
+    return errorResponse(res, 'Gagal mengambil statistik profesi', 500, error.message);
+  }
+};
+
+// ============================================
+// GET REGISTRATION TREND (for line chart)
+// ============================================
+export const getRegistrationTrend = async (req, res) => {
+  try {
+    const { days = 30 } = req.query; // Default to 30 days
+    const numDays = parseInt(days);
+
+    if (isNaN(numDays) || numDays < 1 || numDays > 365) {
+      return errorResponse(res, 'Parameter days harus antara 1-365', 400);
+    }
+
+    const connection = await pool.getConnection();
+
+    // Get registration counts grouped by date for the last N days
+    const [trendData] = await connection.query(
+      `SELECT DATE(registration_date) as date, COUNT(*) as count
+       FROM members
+       WHERE registration_date >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+       GROUP BY DATE(registration_date)
+       ORDER BY date ASC`,
+      [numDays]
+    );
+
+    connection.release();
+
+    // Create complete date range with 0 counts for missing dates
+    const result = [];
+    const dateMap = new Map();
+
+    // Map existing data
+    trendData.forEach(row => {
+      const dateStr = row.date.toISOString().split('T')[0];
+      dateMap.set(dateStr, row.count);
+    });
+
+    // Fill all dates in range
+    const today = new Date();
+    for (let i = numDays - 1; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+
+      result.push({
+        date: dateStr,
+        count: dateMap.get(dateStr) || 0
+      });
+    }
+
+    return successResponse(res, result, 'Tren pendaftaran');
+  } catch (error) {
+    console.error('Registration trend error:', error);
+    return errorResponse(res, 'Gagal mengambil tren pendaftaran', 500, error.message);
   }
 };
 
@@ -563,5 +657,66 @@ export const rejectRenewal = async (req, res) => {
   } catch (error) {
     console.error('Reject renewal error:', error);
     return errorResponse(res, 'Gagal menolak perpanjangan', 500, error.message);
+  }
+};
+
+// ============================================
+// DELETE MEMBER (Admin)
+// ============================================
+export const deleteMember = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const connection = await pool.getConnection();
+
+    // First, get member data to delete associated files
+    const [members] = await connection.query(
+      'SELECT * FROM members WHERE id = ?',
+      [id]
+    );
+
+    if (members.length === 0) {
+      connection.release();
+      return errorResponse(res, 'Anggota tidak ditemukan', 404);
+    }
+
+    const member = members[0];
+
+    // Delete associated files from filesystem
+    const filesToDelete = [
+      member.photo_path,
+      member.signature_path,
+      member.payment_proof_path
+    ].filter(Boolean); // Remove null/undefined values
+
+    filesToDelete.forEach(filePath => {
+      try {
+        // Convert relative path to absolute path
+        const absolutePath = path.join(__dirname, '../../', filePath);
+        if (fs.existsSync(absolutePath)) {
+          fs.unlinkSync(absolutePath);
+          console.log(`Deleted file: ${absolutePath}`);
+        }
+      } catch (err) {
+        console.error(`Error deleting file ${filePath}:`, err);
+        // Continue even if file deletion fails
+      }
+    });
+
+    // Delete member from database
+    const [result] = await connection.query(
+      'DELETE FROM members WHERE id = ?',
+      [id]
+    );
+
+    connection.release();
+
+    return successResponse(
+      res,
+      { id },
+      'Anggota berhasil dihapus'
+    );
+  } catch (error) {
+    console.error('Delete member error:', error);
+    return errorResponse(res, 'Gagal menghapus anggota', 500, error.message);
   }
 };
