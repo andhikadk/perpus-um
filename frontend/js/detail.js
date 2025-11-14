@@ -45,103 +45,215 @@ function initializeLogout() {
 }
 
 // Initialize page on DOM ready
-window.addEventListener('DOMContentLoaded', function() {
+window.addEventListener('DOMContentLoaded', async function() {
   'use strict';
 
   // Initialize logout button
   initializeLogout();
 
   // ============================================
-  // 1. LOAD MEMBER DATA FROM URL PARAMETERS
+  // 1. GET MEMBER ID AND FETCH DATA FROM API
   // ============================================
-  const nama = getQueryParam('nama');
-  const nim = getQueryParam('nim');
-  const email = getQueryParam('email');
-  const foto = getQueryParam('foto') || getQueryParam('photo');
-  const asal = getQueryParam('asal') || getQueryParam('program');
-  const profession = getQueryParam('profession') || getQueryParam('fakultas');
-  const institution = getQueryParam('institution');
-  const prodi = getQueryParam('prodi');
-  const registrationDate = getQueryParam('registrationDate') || getQueryParam('tanggal');
+  const memberId = getQueryParam('id');
 
-  const birthPlace = getQueryParam('birthPlace');
-  const birthDate = getQueryParam('birthDate');
-  const gender = getQueryParam('gender');
-  const address = getQueryParam('address');
-  const signature = getQueryParam('signature');
-  const paymentProof = getQueryParam('paymentProof');
-
-  // Populate member information
-  if (nama) document.getElementById('detail-nama').textContent = nama;
-  if (nim) document.getElementById('detail-nim').textContent = nim;
-  if (email) document.getElementById('detail-email').textContent = email;
-  if (foto) document.getElementById('detail-foto').src = foto;
-  if (asal) document.getElementById('detail-asal').textContent = asal;
-  if (profession) document.getElementById('detail-profession').textContent = profession;
-
-  if (institution && document.getElementById('detail-institution')) {
-    document.getElementById('detail-institution').textContent = institution;
-  } else if (prodi && document.getElementById('detail-institution')) {
-    document.getElementById('detail-institution').textContent = prodi;
+  if (!memberId) {
+    alert('Member ID tidak ditemukan');
+    window.location.href = 'view_table_mahasiswa.html#data';
+    return;
   }
 
-  if (registrationDate) document.getElementById('detail-tanggal').textContent = registrationDate;
+  try {
+    const token = localStorage.getItem('authToken');
+    const response = await fetch(`${CONFIG.API.BASE_URL}/members/${memberId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
 
-  // Personal information
-  if (birthPlace) document.getElementById('detail-birthPlace').textContent = birthPlace;
-  if (birthDate) document.getElementById('detail-birthDate').textContent = birthDate;
-  if (gender) {
-    const genderText = gender === 'male' ? 'Laki-laki' : (gender === 'female' ? 'Perempuan' : gender);
-    document.getElementById('detail-gender').textContent = genderText;
-  }
-  if (address) document.getElementById('detail-address').textContent = address;
+    if (!response.ok) {
+      alert('Gagal memuat data anggota');
+      window.location.href = 'view_table_mahasiswa.html#data';
+      return;
+    }
 
-  // ============================================
-  // 2. DISPLAY PAYMENT PROOF
-  // ============================================
-  if (paymentProof) {
-    const paymentEl = document.getElementById('detail-payment');
-    if (paymentEl) {
-      const lower = paymentProof.toLowerCase();
-      if (lower.endsWith('.pdf')) {
-        paymentEl.innerHTML = `<a href="${paymentProof}" target="_blank" class="text-yellow-600 hover:underline">Lihat Bukti Transfer (PDF)</a>`;
-      } else {
-        paymentEl.innerHTML = `<img src="${paymentProof}" alt="Bukti Transfer" class="h-32 object-contain border rounded"/>`;
+    const data = await response.json();
+    const member = data.data;
+
+    // ============================================
+    // 2. POPULATE MEMBER INFORMATION
+    // ============================================
+    if (member.name) document.getElementById('detail-nama').textContent = member.name;
+    if (member.nim) document.getElementById('detail-nim').textContent = member.nim;
+    if (member.email) document.getElementById('detail-email').textContent = member.email;
+    if (member.photo_path) document.getElementById('detail-foto').src = member.photo_path;
+    if (member.institution) document.getElementById('detail-asal').textContent = member.institution;
+    if (member.profession) document.getElementById('detail-profession').textContent = member.profession;
+    if (member.program) document.getElementById('detail-institution').textContent = member.program;
+    if (member.registration_date) {
+      document.getElementById('detail-tanggal').textContent = new Date(member.registration_date).toLocaleDateString('id-ID');
+    }
+
+    // Personal information
+    if (member.birth_place) document.getElementById('detail-birthPlace').textContent = member.birth_place;
+    if (member.birth_date) document.getElementById('detail-birthDate').textContent = new Date(member.birth_date).toLocaleDateString('id-ID');
+    if (member.gender) {
+      const genderText = member.gender === 'male' ? 'Laki-laki' : (member.gender === 'female' ? 'Perempuan' : member.gender);
+      document.getElementById('detail-gender').textContent = genderText;
+    }
+    if (member.address) document.getElementById('detail-address').textContent = member.address;
+
+    // ============================================
+    // 3. DISPLAY PAYMENT PROOF
+    // ============================================
+    if (member.payment_proof_path) {
+      const paymentEl = document.getElementById('detail-payment');
+      if (paymentEl) {
+        const lower = member.payment_proof_path.toLowerCase();
+        if (lower.endsWith('.pdf')) {
+          paymentEl.innerHTML = `<a href="${member.payment_proof_path}" target="_blank" class="text-yellow-600 hover:underline">Lihat Bukti Transfer (PDF)</a>`;
+        } else {
+          paymentEl.innerHTML = `<img src="${member.payment_proof_path}" alt="Bukti Transfer" class="h-32 object-contain border rounded"/>`;
+        }
       }
     }
-  }
 
-  // ============================================
-  // 3. DISPLAY SIGNATURE
-  // ============================================
-  if (signature) {
-    const signatureEl = document.getElementById('detail-signature');
-    if (signatureEl) {
-      signatureEl.innerHTML = `<img src="${signature}" alt="Tanda Tangan" class="h-28 object-contain border rounded"/>`;
+    // ============================================
+    // 4. DISPLAY SIGNATURE
+    // ============================================
+    if (member.signature_path) {
+      const signatureEl = document.getElementById('detail-signature');
+      if (signatureEl) {
+        signatureEl.innerHTML = `<img src="${member.signature_path}" alt="Tanda Tangan" class="h-28 object-contain border rounded"/>`;
+      }
     }
+
+  } catch (error) {
+    console.error('Error loading member data:', error);
+    alert('Gagal memuat data anggota: ' + error.message);
+    window.location.href = 'view_table_mahasiswa.html#data';
+    return;
   }
 
   // ============================================
-  // 4. ACTION BUTTONS
+  // 5. ACTION BUTTONS - API INTEGRATION
   // ============================================
   const approveBtn = document.getElementById('approve-btn');
-  if (approveBtn) {
-    approveBtn.addEventListener('click', function() {
-      alert('Data mahasiswa telah disetujui!');
-      window.location.href = 'view_table_mahasiswa.html';
-    });
-  }
-
   const rejectBtn = document.getElementById('reject-btn');
-  if (rejectBtn) {
-    rejectBtn.addEventListener('click', function() {
-      const ok = confirm('Tolak pendaftaran ini? Tindakan ini akan membatalkan pendaftaran.');
-      if (ok) {
-        alert('Pendaftaran ditolak.');
-        window.location.href = 'view_table_mahasiswa.html';
+  const rejectionModal = document.getElementById('rejectionModal');
+  const rejectionForm = document.getElementById('rejectionForm');
+  const cancelRejectionBtn = document.getElementById('cancelRejectionBtn');
+
+  if (approveBtn) {
+    approveBtn.addEventListener('click', async function() {
+      // Show confirmation
+      const confirmed = confirm('Apakah Anda yakin ingin menyetujui pendaftaran ini?');
+      if (!confirmed) return;
+
+      // Show loading state
+      approveBtn.disabled = true;
+      approveBtn.textContent = 'Sedang memproses...';
+
+      try {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`${CONFIG.API.BASE_URL}/members/${memberId}/approve`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert('Gagal menyetujui: ' + (data.message || 'Server error'));
+          approveBtn.disabled = false;
+          approveBtn.textContent = 'Setujui';
+          return;
+        }
+
+        // Success
+        alert('Pendaftaran berhasil disetujui! Email notifikasi telah dikirim ke anggota.');
+        window.location.href = 'view_table_mahasiswa.html#data';
+      } catch (error) {
+        console.error('Approve error:', error);
+        alert('Terjadi kesalahan: ' + error.message);
+        approveBtn.disabled = false;
+        approveBtn.textContent = 'Setujui';
       }
     });
   }
+
+  if (rejectBtn) {
+    rejectBtn.addEventListener('click', function() {
+      // Show rejection reason modal
+      rejectionModal.classList.remove('hidden');
+    });
+  }
+
+  if (cancelRejectionBtn) {
+    cancelRejectionBtn.addEventListener('click', function() {
+      rejectionModal.classList.add('hidden');
+      rejectionForm.reset();
+    });
+  }
+
+  if (rejectionForm) {
+    rejectionForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const reason = document.getElementById('rejectionReason').value.trim();
+
+      if (!reason) {
+        alert('Silakan masukkan alasan penolakan');
+        return;
+      }
+
+      // Show loading state
+      const submitBtn = rejectionForm.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sedang memproses...';
+
+      try {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`${CONFIG.API.BASE_URL}/members/${memberId}/reject`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ reason })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert('Gagal menolak: ' + (data.message || 'Server error'));
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Tolak Pendaftaran';
+          return;
+        }
+
+        // Success
+        alert('Pendaftaran ditolak. Email pemberitahuan dengan alasan telah dikirim ke anggota.');
+        window.location.href = 'view_table_mahasiswa.html#data';
+      } catch (error) {
+        console.error('Reject error:', error);
+        alert('Terjadi kesalahan: ' + error.message);
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Tolak Pendaftaran';
+      }
+    });
+  }
+
+  // Close modal when clicking outside
+  rejectionModal.addEventListener('click', function(e) {
+    if (e.target === rejectionModal) {
+      rejectionModal.classList.add('hidden');
+      rejectionForm.reset();
+    }
+  });
 
   const backBtn = document.getElementById('back-btn');
   if (backBtn) {
