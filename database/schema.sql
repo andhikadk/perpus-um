@@ -44,12 +44,13 @@ CREATE TABLE IF NOT EXISTS members (
   signature_path VARCHAR(255),
   payment_proof_path VARCHAR(255),
 
-  -- Status
+  -- Status & Membership Period
   registration_date DATE,
   status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
   approved_at TIMESTAMP NULL,
   rejected_at TIMESTAMP NULL,
   rejection_reason TEXT,
+  membership_expiry_date DATE,
 
   -- Timestamps
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

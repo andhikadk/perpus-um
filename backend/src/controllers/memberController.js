@@ -5,7 +5,7 @@
 
 import pool from '../config/database.js';
 import { successResponse, errorResponse, validationError } from '../utils/responseHandler.js';
-import { sendRegistrationConfirmation, sendApprovalEmail, sendRejectionEmail } from '../services/emailService.js';
+import { sendRegistrationConfirmation, sendApprovalEmail, sendRejectionEmail, sendRenewalApprovalEmail, sendRenewalRejectionEmail } from '../services/emailService.js';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -220,10 +220,15 @@ export const approveMember = async (req, res) => {
     const { id } = req.params;
     const connection = await pool.getConnection();
 
-    // Update member status
+    // Calculate membership expiry date (1 year from now)
+    const expiryDate = new Date();
+    expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+    const expiryDateString = expiryDate.toISOString().split('T')[0];
+
+    // Update member status and set expiry date
     const [result] = await connection.query(
-      'UPDATE members SET status = ?, approved_at = NOW() WHERE id = ?',
-      ['approved', id]
+      'UPDATE members SET status = ?, approved_at = NOW(), membership_expiry_date = ? WHERE id = ?',
+      ['approved', expiryDateString, id]
     );
 
     if (result.affectedRows === 0) {
@@ -356,9 +361,9 @@ export const requestRenewal = async (req, res) => {
     const { id } = req.params;
     const connection = await pool.getConnection();
 
-    // Check if member exists
+    // Check if member exists and get full data
     const [members] = await connection.query(
-      'SELECT id, email, name FROM members WHERE id = ?',
+      'SELECT id, email, name, status, membership_expiry_date FROM members WHERE id = ?',
       [id]
     );
 
@@ -368,6 +373,30 @@ export const requestRenewal = async (req, res) => {
     }
 
     const member = members[0];
+
+    // Validate member status must be approved
+    if (member.status !== 'approved') {
+      connection.release();
+      return errorResponse(res, 'Hanya anggota yang disetujui dapat perpanjangan. Status Anda: ' + member.status, 400);
+    }
+
+    // Validate membership has expired or about to expire (within 30 days)
+    if (member.membership_expiry_date) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const expiryDate = new Date(member.membership_expiry_date);
+      expiryDate.setHours(0, 0, 0, 0);
+
+      const thirtyDaysFromNow = new Date(today);
+      thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+
+      if (expiryDate > thirtyDaysFromNow) {
+        connection.release();
+        const daysLeft = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+        return errorResponse(res, `Keanggotaan Anda masih berlaku untuk ${daysLeft} hari ke depan. Perpanjangan dapat dilakukan 30 hari sebelum masa berlaku berakhir.`, 400);
+      }
+    }
 
     // Insert renewal request
     const [result] = await connection.query(
@@ -420,16 +449,42 @@ export const approveRenewal = async (req, res) => {
     const { renewalId } = req.params;
     const connection = await pool.getConnection();
 
-    // Update renewal status
-    const [result] = await connection.query(
-      'UPDATE renewals SET status = ?, approved_at = NOW() WHERE id = ?',
-      ['approved', renewalId]
+    // Get renewal and member data first
+    const [renewalData] = await connection.query(
+      `SELECT r.*, m.id as member_id, m.membership_expiry_date FROM renewals r
+       JOIN members m ON r.member_id = m.id
+       WHERE r.id = ?`,
+      [renewalId]
     );
 
-    if (result.affectedRows === 0) {
+    if (renewalData.length === 0) {
       connection.release();
       return errorResponse(res, 'Permintaan perpanjangan tidak ditemukan', 404);
     }
+
+    const renewal = renewalData[0];
+    const currentExpiryDate = renewal.membership_expiry_date ? new Date(renewal.membership_expiry_date) : new Date();
+
+    // Calculate new expiry date (extend 1 year from current expiry or from today if expired)
+    const newExpiryDate = new Date(currentExpiryDate);
+    if (currentExpiryDate < new Date()) {
+      // If already expired, count from today
+      newExpiryDate.setDate(new Date().getDate());
+    }
+    newExpiryDate.setFullYear(newExpiryDate.getFullYear() + 1);
+    const newExpiryDateString = newExpiryDate.toISOString().split('T')[0];
+
+    // Update renewal status and member expiry date
+    const [result] = await connection.query(
+      `UPDATE renewals SET status = ?, approved_at = NOW(), new_expiry_date = ? WHERE id = ?`,
+      ['approved', newExpiryDateString, renewalId]
+    );
+
+    // Update member membership_expiry_date
+    await connection.query(
+      'UPDATE members SET membership_expiry_date = ? WHERE id = ?',
+      [newExpiryDateString, renewal.member_id]
+    );
 
     // Get member data for email
     const [renewals] = await connection.query(

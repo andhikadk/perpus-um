@@ -83,9 +83,9 @@ router.put('/:id/reject', authenticateToken, rejectMember);
 
 /**
  * POST /api/members/:id/renewal-request
- * Request membership renewal
+ * Request membership renewal (Public - no auth required)
  */
-router.post('/:id/renewal-request', authenticateToken, requestRenewal);
+router.post('/:id/renewal-request', requestRenewal);
 
 /**
  * GET /api/members/renewals
