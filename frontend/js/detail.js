@@ -80,13 +80,30 @@ window.addEventListener('DOMContentLoaded', async function() {
     const data = await response.json();
     const member = data.data;
 
+    // Helper function to build file URL
+    const getFileUrl = (path) => {
+      if (!path) return null;
+      if (path.startsWith('http')) return path;
+      if (path.startsWith('/')) return `http://localhost:3000${path}`;
+      return `http://localhost:3000/${path}`;
+    };
+
     // ============================================
     // 2. POPULATE MEMBER INFORMATION
     // ============================================
     if (member.name) document.getElementById('detail-nama').textContent = member.name;
     if (member.nim) document.getElementById('detail-nim').textContent = member.nim;
     if (member.email) document.getElementById('detail-email').textContent = member.email;
-    if (member.photo_path) document.getElementById('detail-foto').src = member.photo_path;
+
+    // Display photo
+    if (member.photo_path) {
+      const fotoEl = document.getElementById('detail-foto');
+      fotoEl.src = getFileUrl(member.photo_path);
+      fotoEl.onerror = function() {
+        this.src = './assets/logo-um.png';
+      };
+    }
+
     if (member.institution) document.getElementById('detail-asal').textContent = member.institution;
     if (member.profession) document.getElementById('detail-profession').textContent = member.profession;
     if (member.program) document.getElementById('detail-institution').textContent = member.program;
@@ -109,12 +126,18 @@ window.addEventListener('DOMContentLoaded', async function() {
     if (member.payment_proof_path) {
       const paymentEl = document.getElementById('detail-payment');
       if (paymentEl) {
+        const fileUrl = getFileUrl(member.payment_proof_path);
         const lower = member.payment_proof_path.toLowerCase();
         if (lower.endsWith('.pdf')) {
-          paymentEl.innerHTML = `<a href="${member.payment_proof_path}" target="_blank" class="text-yellow-600 hover:underline">Lihat Bukti Transfer (PDF)</a>`;
+          paymentEl.innerHTML = `<a href="${fileUrl}" target="_blank" class="text-yellow-600 hover:underline"><i class="fas fa-file-pdf mr-1"></i>Lihat Bukti Transfer (PDF)</a>`;
         } else {
-          paymentEl.innerHTML = `<img src="${member.payment_proof_path}" alt="Bukti Transfer" class="h-32 object-contain border rounded"/>`;
+          paymentEl.innerHTML = `<img src="${fileUrl}" alt="Bukti Transfer" class="h-32 object-contain border rounded" onerror="this.src='./assets/logo-um.png'"/>`;
         }
+      }
+    } else {
+      const paymentEl = document.getElementById('detail-payment');
+      if (paymentEl) {
+        paymentEl.textContent = '-';
       }
     }
 
@@ -124,7 +147,13 @@ window.addEventListener('DOMContentLoaded', async function() {
     if (member.signature_path) {
       const signatureEl = document.getElementById('detail-signature');
       if (signatureEl) {
-        signatureEl.innerHTML = `<img src="${member.signature_path}" alt="Tanda Tangan" class="h-28 object-contain border rounded"/>`;
+        const fileUrl = getFileUrl(member.signature_path);
+        signatureEl.innerHTML = `<img src="${fileUrl}" alt="Tanda Tangan" class="h-28 object-contain border rounded" onerror="this.src='./assets/logo-um.png'"/>`;
+      }
+    } else {
+      const signatureEl = document.getElementById('detail-signature');
+      if (signatureEl) {
+        signatureEl.textContent = '-';
       }
     }
 

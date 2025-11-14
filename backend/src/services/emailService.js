@@ -3,14 +3,17 @@
  * Handles sending emails for various notification events
  */
 
-const ejs = require('ejs');
-const path = require('path');
-const { getTransporter } = require('../config/email');
+import ejs from 'ejs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { getTransporter } from '../config/email.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
  * Render email template with data
  */
-const renderTemplate = (templateName, data) => {
+export const renderTemplate = (templateName, data) => {
   return new Promise((resolve, reject) => {
     const templatePath = path.join(__dirname, '../templates/emails', `${templateName}.ejs`);
     const baseTemplatePath = path.join(__dirname, '../templates/emails/base.ejs');
@@ -35,7 +38,7 @@ const renderTemplate = (templateName, data) => {
 /**
  * Send email helper function
  */
-const sendEmail = async (to, subject, templateName, data) => {
+export const sendEmail = async (to, subject, templateName, data) => {
   try {
     const transporter = await getTransporter();
 
@@ -61,7 +64,7 @@ const sendEmail = async (to, subject, templateName, data) => {
 /**
  * Send registration confirmation email
  */
-const sendRegistrationConfirmation = async (member) => {
+export const sendRegistrationConfirmation = async (member) => {
   const subject = 'Konfirmasi Pendaftaran Keanggotaan - Perpustakaan UM';
   const data = {
     name: member.name,
@@ -75,7 +78,7 @@ const sendRegistrationConfirmation = async (member) => {
 /**
  * Send approval notification email
  */
-const sendApprovalEmail = async (member) => {
+export const sendApprovalEmail = async (member) => {
   const subject = 'Pendaftaran Anda Telah Disetujui - Perpustakaan UM';
   const data = {
     name: member.name,
@@ -90,7 +93,7 @@ const sendApprovalEmail = async (member) => {
 /**
  * Send rejection notification email
  */
-const sendRejectionEmail = async (member, rejectionReason = null) => {
+export const sendRejectionEmail = async (member, rejectionReason = null) => {
   const subject = 'Pemberitahuan Status Pendaftaran - Perpustakaan UM';
   const data = {
     name: member.name,
@@ -105,7 +108,7 @@ const sendRejectionEmail = async (member, rejectionReason = null) => {
 /**
  * Send renewal approval email
  */
-const sendRenewalApprovalEmail = async (member) => {
+export const sendRenewalApprovalEmail = async (member) => {
   const subject = 'Perpanjangan Keanggotaan Disetujui - Perpustakaan UM';
   const data = {
     name: member.name,
@@ -119,7 +122,7 @@ const sendRenewalApprovalEmail = async (member) => {
 /**
  * Send renewal rejection email
  */
-const sendRenewalRejectionEmail = async (member, rejectionReason = null) => {
+export const sendRenewalRejectionEmail = async (member, rejectionReason = null) => {
   const subject = 'Pemberitahuan Perpanjangan Keanggotaan - Perpustakaan UM';
   const data = {
     name: member.name,
@@ -129,13 +132,4 @@ const sendRenewalRejectionEmail = async (member, rejectionReason = null) => {
   };
 
   return sendEmail(member.email, subject, 'renewal-rejected', data);
-};
-
-module.exports = {
-  sendRegistrationConfirmation,
-  sendApprovalEmail,
-  sendRejectionEmail,
-  sendRenewalApprovalEmail,
-  sendRenewalRejectionEmail,
-  sendEmail
 };

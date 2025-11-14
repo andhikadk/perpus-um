@@ -11,7 +11,11 @@ import {
   searchMembers,
   approveMember,
   rejectMember,
-  getDashboardStats
+  getDashboardStats,
+  requestRenewal,
+  getRenewals,
+  approveRenewal,
+  rejectRenewal
 } from '../controllers/memberController.js';
 import { upload } from '../middleware/upload.js';
 import { authenticateToken } from '../middleware/auth.js';
@@ -72,5 +76,33 @@ router.put('/:id/approve', authenticateToken, approveMember);
  * Reject member registration (Admin only)
  */
 router.put('/:id/reject', authenticateToken, rejectMember);
+
+// ============================================
+// RENEWAL ROUTES (Admin only - JWT required)
+// ============================================
+
+/**
+ * POST /api/members/:id/renewal-request
+ * Request membership renewal
+ */
+router.post('/:id/renewal-request', authenticateToken, requestRenewal);
+
+/**
+ * GET /api/members/renewals
+ * Get all renewal requests (Admin only)
+ */
+router.get('/renewals/list', authenticateToken, getRenewals);
+
+/**
+ * PUT /api/members/renewals/:renewalId/approve
+ * Approve renewal request (Admin only)
+ */
+router.put('/renewals/:renewalId/approve', authenticateToken, approveRenewal);
+
+/**
+ * PUT /api/members/renewals/:renewalId/reject
+ * Reject renewal request (Admin only)
+ */
+router.put('/renewals/:renewalId/reject', authenticateToken, rejectRenewal);
 
 export default router;

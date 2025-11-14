@@ -3,65 +3,46 @@
  * Handles SMTP connection and email sending
  */
 
-const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
 
 // Create transporter based on environment
 const createTransporter = () => {
-    if (process.env.NODE_ENV === 'production') {
-        // Production: Use Gmail OAuth or SMTP service
-        return nodemailer.createTransport({
-            host: process.env.SMTP_HOST || 'smtp.gmail.com',
-            port: process.env.SMTP_PORT || 587,
-            secure: false,
+    // If SMTP config exists in .env, use it (both production and development)
+    if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
+        console.log(`📧 Using SMTP: ${process.env.SMTP_HOST}:${process.env.SMTP_PORT}`);
+        return Promise.resolve(nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port: parseInt(process.env.SMTP_PORT) || 587,
+            secure: process.env.SMTP_SECURE === 'true' || false,
             auth: {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASSWORD
             }
-        });
-    } else {
-        // Development: Use Ethereal (fake SMTP for testing)
-        return nodemailer.createTestAccount()
-            .then(testAccount => {
-                return nodemailer.createTransport({
-                    host: 'smtp.ethereal.email',
-                    port: 587,
-                    secure: false,
-                    auth: {
-                        user: testAccount.user,
-                        pass: testAccount.pass
-                    }
-                });
-            })
-            .catch(err => {
-                console.error('Failed to create test account:', err);
-                // Fallback to null transporter (no-op)
-                return {
-                    sendMail: (options, callback) => {
-                        console.warn('Email service not configured. Email not sent:', options.subject);
-                        if (callback) callback(null, { messageId: 'MOCK' });
-                    }
-                };
-            });
+        }));
     }
+
+    // Fallback: If no SMTP config, show error
+    console.warn('⚠️  SMTP configuration not found in .env. Email sending disabled.');
+    return Promise.resolve({
+        sendMail: (options, callback) => {
+            console.warn('❌ Email service not configured. Email not sent:', options.subject);
+            if (callback) callback(null, { messageId: 'MOCK' });
+        }
+    });
 };
 
 let transporter = null;
 
 // Initialize transporter
-const initializeTransporter = async () => {
+export const initializeTransporter = async () => {
     transporter = await createTransporter();
     return transporter;
 };
 
 // Get transporter (ensure initialized)
-const getTransporter = async () => {
+export const getTransporter = async () => {
     if (!transporter) {
         await initializeTransporter();
     }
     return transporter;
-};
-
-module.exports = {
-    getTransporter,
-    initializeTransporter
 };
