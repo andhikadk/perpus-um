@@ -1,0 +1,27 @@
+<h2>Pemberitahuan Perpanjangan Keanggotaan</h2>
+
+<p>Halo <strong><%= name %></strong>,</p>
+
+<p>Permintaan perpanjangan keanggotaan Anda <span class="status-rejected">DITOLAK</span>.</p>
+
+<div class="info-box">
+    <strong>Nama:</strong> <%= name %><br>
+    <strong>NIM/NIK:</strong> <%= nim %><br>
+    <strong>Tanggal Pengajuan:</strong> <%= renewalDate %><br>
+    <strong>Status:</strong> <span class="status-rejected">Ditolak</span>
+</div>
+
+<% if (rejectionReason) { %>
+<p><strong>Alasan Penolakan:</strong></p>
+<div class="info-box">
+    <%= rejectionReason %>
+</div>
+<% } %>
+
+<p>Silakan hubungi kami untuk informasi lebih lanjut atau untuk membahas opsi perpanjangan berikutnya.</p>
+
+<p>📞 (0341) 571035<br>
+📧 library@um.ac.id</p>
+
+<p>Salam hormat,<br>
+<strong>Tim Perpustakaan Universitas Negeri Malang</strong></p>

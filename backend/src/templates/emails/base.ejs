@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #facc15 0%, #f59e0b 100%);
+            padding: 30px 20px;
+            text-align: center;
+            color: #333;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .header p {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        .content {
+            padding: 30px;
+        }
+        .content h2 {
+            color: #333;
+            font-size: 18px;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .content p {
+            color: #666;
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+        .button {
+            display: inline-block;
+            background-color: #facc15;
+            color: #333;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            margin: 20px 0;
+            border: none;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #f59e0b;
+        }
+        .info-box {
+            background-color: #f9fafb;
+            border-left: 4px solid #facc15;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .info-box strong {
+            color: #333;
+        }
+        .footer {
+            background-color: #f9fafb;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+            font-size: 12px;
+            color: #999;
+        }
+        .footer a {
+            color: #facc15;
+            text-decoration: none;
+        }
+        .status-approved {
+            color: #059669;
+            font-weight: bold;
+        }
+        .status-rejected {
+            color: #dc2626;
+            font-weight: bold;
+        }
+        .status-pending {
+            color: #d97706;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Perpustakaan Universitas Negeri Malang</h1>
+            <p>Sistem Manajemen Keanggotaan</p>
+        </div>
+
+        <div class="content">
+            <%- body %>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2025 Perpustakaan Universitas Negeri Malang. All rights reserved.</p>
+            <p>Jl. Semarang 5 Malang 65145 Jawa Timur – Indonesia<br>
+            Telepon: (0341) 571035 | Email: library@um.ac.id</p>
+        </div>
+    </div>
+</body>
+</html>

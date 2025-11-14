@@ -1,0 +1,34 @@
+<h2>Pemberitahuan Pendaftaran Keanggotaan</h2>
+
+<p>Halo <strong><%= name %></strong>,</p>
+
+<p>Terima kasih telah melamar keanggotaan di Perpustakaan Universitas Negeri Malang. Setelah review menyeluruh, kami menyampaikan bahwa pendaftaran Anda <span class="status-rejected">DITOLAK</span>.</p>
+
+<div class="info-box">
+    <strong>Nama:</strong> <%= name %><br>
+    <strong>Email:</strong> <%= email %><br>
+    <strong>Status:</strong> <span class="status-rejected">Ditolak</span><br>
+    <strong>Tanggal Keputusan:</strong> <%= rejectionDate %>
+</div>
+
+<% if (rejectionReason) { %>
+<p><strong>Alasan Penolakan:</strong></p>
+<div class="info-box">
+    <%= rejectionReason %>
+</div>
+<% } %>
+
+<p><strong>Apa yang bisa Anda lakukan?</strong></p>
+<ul>
+    <li>Hubungi kami untuk mendapatkan informasi lebih detail tentang alasan penolakan</li>
+    <li>Jika ada data yang perlu diperbaiki, Anda bisa melamar ulang dengan dokumen yang lengkap</li>
+    <li>Kunjungi kami untuk berdiskusi lebih lanjut</li>
+</ul>
+
+<p>Kami menghargai minat Anda dan terbuka untuk membantu. Silakan hubungi kami:</p>
+<p>📞 (0341) 571035<br>
+📧 library@um.ac.id<br>
+📍 Jl. Semarang 5 Malang 65145</p>
+
+<p>Salam hormat,<br>
+<strong>Tim Perpustakaan Universitas Negeri Malang</strong></p>
