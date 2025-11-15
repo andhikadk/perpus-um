@@ -18,6 +18,7 @@ import {
   getRenewals,
   approveRenewal,
   rejectRenewal,
+  updateMember,
   deleteMember
 } from '../controllers/memberController.js';
 import { upload } from '../middleware/upload.js';
@@ -94,6 +95,16 @@ router.put('/:id/approve', authenticateToken, approveMember);
  * Reject member registration (Admin only)
  */
 router.put('/:id/reject', authenticateToken, rejectMember);
+
+/**
+ * PUT /api/members/:id
+ * Update member data (Admin only)
+ */
+router.put('/:id', authenticateToken, upload.fields([
+  { name: 'photo', maxCount: 1 },
+  { name: 'signature', maxCount: 1 },
+  { name: 'paymentProof', maxCount: 1 }
+]), updateMember);
 
 /**
  * DELETE /api/members/:id

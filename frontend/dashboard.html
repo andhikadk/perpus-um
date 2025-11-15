@@ -80,60 +80,74 @@
                         <h2 class="text-xl font-bold text-gray-900">Dashboard</h2>
                     </div>
 
-                    <!-- Dashboard Chart Section -->
-                    <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-semibold text-gray-900">Tren Pendaftaran Mahasiswa</h3>
-                            <div class="flex gap-2">
-                                <button id="lastWeekBtn" class="px-3 py-1 text-sm rounded-lg bg-gray-100 hover:bg-gray-200 transition">7 Hari</button>
-                                <button id="lastMonthBtn" class="px-3 py-1 text-sm rounded-lg bg-yellow-400 hover:bg-yellow-500 transition">30 Hari</button>
+                    <!-- Resume cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
+                        <!-- Pendaftar Baru moved to the leftmost position -->
+                        <div class="resume-card cursor-pointer bg-white border rounded-lg p-4 shadow-sm flex items-center gap-4 hover:shadow-md transition" id="cardNew">
+                            <div class="p-3 bg-blue-100 rounded-full">
+                                <i class="fas fa-user-plus text-blue-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-500">Pendaftar Baru (7 hari)</div>
+                                <div class="text-xl font-bold text-gray-900" id="newCount">0</div>
                             </div>
                         </div>
-                        <!-- Resume cards -->
-                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
-                            <!-- Pendaftar Baru moved to the leftmost position -->
-                            <div class="resume-card cursor-pointer bg-white border rounded-lg p-4 shadow-sm flex items-center gap-4 hover:shadow-md transition" id="cardNew">
-                                <div class="p-3 bg-blue-100 rounded-full">
-                                    <i class="fas fa-user-plus text-blue-600"></i>
-                                </div>
-                                <div>
-                                    <div class="text-sm text-gray-500">Pendaftar Baru (7 hari)</div>
-                                    <div class="text-xl font-bold text-gray-900" id="newCount">0</div>
-                                </div>
-                            </div>
 
-                            <div class="resume-card cursor-pointer bg-white border rounded-lg p-4 shadow-sm flex items-center gap-4 hover:shadow-md transition" id="cardTotal">
-                                <div class="p-3 bg-yellow-100 rounded-full">
-                                    <i class="fas fa-users text-yellow-600"></i>
-                                </div>
-                                <div>
-                                    <div class="text-sm text-gray-500">Total Pendaftar</div>
-                                    <div class="text-xl font-bold text-gray-900" id="totalCount">0</div>
-                                </div>
+                        <div class="resume-card cursor-pointer bg-white border rounded-lg p-4 shadow-sm flex items-center gap-4 hover:shadow-md transition" id="cardTotal">
+                            <div class="p-3 bg-yellow-100 rounded-full">
+                                <i class="fas fa-users text-yellow-600"></i>
                             </div>
-
-                            <div class="resume-card cursor-pointer bg-white border rounded-lg p-4 shadow-sm flex items-center gap-4 hover:shadow-md transition" id="cardActive">
-                                <div class="p-3 bg-green-100 rounded-full">
-                                    <i class="fas fa-check text-green-600"></i>
-                                </div>
-                                <div>
-                                    <div class="text-sm text-gray-500">Aktif</div>
-                                    <div class="text-xl font-bold text-gray-900" id="activeCount">0</div>
-                                </div>
-                            </div>
-
-                            <div class="resume-card cursor-pointer bg-white border rounded-lg p-4 shadow-sm flex items-center gap-4 hover:shadow-md transition" id="cardInactive">
-                                <div class="p-3 bg-red-100 rounded-full">
-                                    <i class="fas fa-times text-red-600"></i>
-                                </div>
-                                <div>
-                                    <div class="text-sm text-gray-500">Tidak Aktif</div>
-                                    <div class="text-xl font-bold text-gray-900" id="inactiveCount">0</div>
-                                </div>
+                            <div>
+                                <div class="text-sm text-gray-500">Total Pendaftar</div>
+                                <div class="text-xl font-bold text-gray-900" id="totalCount">0</div>
                             </div>
                         </div>
-                        <div class="w-full h-[300px]">
-                            <canvas id="registrationChart"></canvas>
+
+                        <div class="resume-card cursor-pointer bg-white border rounded-lg p-4 shadow-sm flex items-center gap-4 hover:shadow-md transition" id="cardActive">
+                            <div class="p-3 bg-green-100 rounded-full">
+                                <i class="fas fa-check text-green-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-500">Aktif</div>
+                                <div class="text-xl font-bold text-gray-900" id="activeCount">0</div>
+                            </div>
+                        </div>
+
+                        <div class="resume-card cursor-pointer bg-white border rounded-lg p-4 shadow-sm flex items-center gap-4 hover:shadow-md transition" id="cardInactive">
+                            <div class="p-3 bg-red-100 rounded-full">
+                                <i class="fas fa-times text-red-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-500">Tidak Aktif</div>
+                                <div class="text-xl font-bold text-gray-900" id="inactiveCount">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Charts Section - 2 Column Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <!-- Line Chart -->
+                        <div class="bg-white rounded-lg shadow-sm p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">Tren Pendaftaran Mahasiswa</h3>
+                                <div class="flex gap-2">
+                                    <button id="lastWeekBtn" class="px-3 py-1 text-sm rounded-lg bg-gray-100 hover:bg-gray-200 transition">7 Hari</button>
+                                    <button id="lastMonthBtn" class="px-3 py-1 text-sm rounded-lg bg-yellow-400 hover:bg-yellow-500 transition">30 Hari</button>
+                                </div>
+                            </div>
+                            <div class="w-full h-[300px]">
+                                <canvas id="registrationChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Pie Chart -->
+                        <div class="bg-white rounded-lg shadow-sm p-6">
+                            <div class="mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">Distribusi Profesi</h3>
+                            </div>
+                            <div class="w-full h-[300px] flex items-center justify-center">
+                                <canvas id="professionChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>

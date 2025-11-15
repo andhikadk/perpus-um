@@ -93,34 +93,65 @@ async function loadRenewals() {
     if (renewals.length === 0) {
       tableBody.innerHTML = `
         <tr class="hover:bg-gray-50">
-          <td class="px-4 py-3 text-center text-gray-500" colspan="5">Tidak ada data perpanjangan</td>
+          <td class="px-4 py-3 text-center text-gray-500" colspan="6">Tidak ada data perpanjangan</td>
         </tr>
       `;
       return;
     }
 
-    tableBody.innerHTML = renewals.map(renewal => `
-      <tr class="border-b hover:bg-gray-50">
-        <td class="px-4 py-3">${renewal.name || '-'}</td>
-        <td class="px-4 py-3">${renewal.nim || '-'}</td>
-        <td class="px-4 py-3">${formatDate(renewal.request_date)}</td>
-        <td class="px-4 py-3">${getStatusBadge(renewal.status)}</td>
-        <td class="px-4 py-3">
-          <div class="flex gap-2">
-            ${renewal.status === 'pending' ? `
-              <button class="approve-renewal-btn px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600" data-renewal-id="${renewal.id}">
-                <i class="fas fa-check mr-1"></i>Setujui
-              </button>
-              <button class="reject-renewal-btn px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600" data-renewal-id="${renewal.id}">
-                <i class="fas fa-times mr-1"></i>Tolak
-              </button>
-            ` : `
-              <span class="text-gray-400 text-sm">Tidak ada aksi</span>
-            `}
-          </div>
-        </td>
-      </tr>
-    `).join('');
+    tableBody.innerHTML = renewals.map(renewal => {
+      // Calculate expiry status
+      let expiryDisplay = '-';
+      let expiryClass = 'text-gray-500';
+
+      if (renewal.old_expiry_date) {
+        const expiryDate = new Date(renewal.old_expiry_date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        expiryDate.setHours(0, 0, 0, 0);
+
+        const daysLeft = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+        expiryDisplay = formatDate(renewal.old_expiry_date);
+
+        if (daysLeft < 0) {
+          expiryDisplay += ` <span class="text-xs">(Expired ${Math.abs(daysLeft)} hari)</span>`;
+          expiryClass = 'text-red-600 font-medium';
+        } else if (daysLeft === 0) {
+          expiryDisplay += ` <span class="text-xs">(Hari ini)</span>`;
+          expiryClass = 'text-orange-600 font-medium';
+        } else if (daysLeft <= 7) {
+          expiryDisplay += ` <span class="text-xs">(${daysLeft} hari lagi)</span>`;
+          expiryClass = 'text-orange-500 font-medium';
+        } else {
+          expiryDisplay += ` <span class="text-xs">(${daysLeft} hari lagi)</span>`;
+          expiryClass = 'text-green-600';
+        }
+      }
+
+      return `
+        <tr class="border-b hover:bg-gray-50">
+          <td class="px-4 py-3">${renewal.name || '-'}</td>
+          <td class="px-4 py-3">${renewal.nim || '-'}</td>
+          <td class="px-4 py-3 ${expiryClass}">${expiryDisplay}</td>
+          <td class="px-4 py-3 text-sm text-gray-600">${formatDate(renewal.request_date)}</td>
+          <td class="px-4 py-3">${getStatusBadge(renewal.status)}</td>
+          <td class="px-4 py-3">
+            <div class="flex gap-2">
+              ${renewal.status === 'pending' ? `
+                <button class="approve-renewal-btn px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600" data-renewal-id="${renewal.id}">
+                  <i class="fas fa-check mr-1"></i>Setujui
+                </button>
+                <button class="reject-renewal-btn px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600" data-renewal-id="${renewal.id}">
+                  <i class="fas fa-times mr-1"></i>Tolak
+                </button>
+              ` : `
+                <span class="text-gray-400 text-sm">Tidak ada aksi</span>
+              `}
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
 
     // Attach event listeners
     attachRenewalEventListeners();
@@ -129,7 +160,7 @@ async function loadRenewals() {
     const tableBody = document.getElementById('renewalTableBody');
     tableBody.innerHTML = `
       <tr class="hover:bg-gray-50">
-        <td class="px-4 py-3 text-center text-red-500" colspan="5">Error: ${error.message}</td>
+        <td class="px-4 py-3 text-center text-red-500" colspan="6">Error: ${error.message}</td>
       </tr>
     `;
   }

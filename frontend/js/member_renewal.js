@@ -113,33 +113,27 @@ document.addEventListener('DOMContentLoaded', function() {
         const statusElement = document.getElementById('displayStatus');
         statusElement.textContent = statusLabel;
 
-        // Add expiry date info if exists
+        // Display membership expiry date with status
         let expiryInfo = 'Belum diset';
         if (member.membership_expiry_date) {
           const expiryDate = new Date(member.membership_expiry_date);
           expiryInfo = expiryDate.toLocaleDateString('id-ID');
 
-          // Add days left info
+          // Add days left info with color coding
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           expiryDate.setHours(0, 0, 0, 0);
 
           const daysLeft = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
           if (daysLeft > 0) {
-            expiryInfo += ` (${daysLeft} hari lagi)`;
+            expiryInfo += ` <span class="font-semibold text-green-700">(${daysLeft} hari lagi)</span>`;
           } else if (daysLeft === 0) {
-            expiryInfo += ` (Habis hari ini)`;
+            expiryInfo += ` <span class="font-semibold text-orange-700">(Habis hari ini)</span>`;
           } else {
-            expiryInfo += ` (Sudah expired ${Math.abs(daysLeft)} hari)`;
+            expiryInfo += ` <span class="font-semibold text-red-700">(Sudah expired ${Math.abs(daysLeft)} hari yang lalu)</span>`;
           }
         }
-        document.getElementById('displayRegDate').innerHTML = expiryInfo + ' <small class="text-gray-500">(Masa berlaku keanggotaan)</small>';
-
-        // Update the label text from "Tanggal Daftar" to "Masa Berlaku Keanggotaan"
-        const strongLabel = document.getElementById('displayRegDate').parentElement.querySelector('strong');
-        if (strongLabel) {
-          strongLabel.textContent = 'Masa Berlaku Keanggotaan:';
-        }
+        document.getElementById('displayExpiryDate').innerHTML = expiryInfo;
 
         // Color the status based on state
         statusElement.classList.remove('text-green-700', 'text-red-700', 'text-yellow-700');

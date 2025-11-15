@@ -6,6 +6,7 @@
 import pool from '../config/database.js';
 import { successResponse, errorResponse, validationError } from '../utils/responseHandler.js';
 import { sendRegistrationConfirmation, sendApprovalEmail, sendRejectionEmail, sendRenewalApprovalEmail, sendRenewalRejectionEmail } from '../services/emailService.js';
+import { generateMemberNumber, isMemberNumberUnique } from '../utils/memberNumberGenerator.js';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -91,13 +92,18 @@ export const registerMember = async (req, res) => {
       }
     }
 
+    // Generate unique member number
+    const regDate = registrationDate ? new Date(registrationDate) : new Date();
+    const memberNumber = await generateMemberNumber(regDate);
+
     // Insert into database
     const [result] = await connection.query(
       `INSERT INTO members
-        (name, nim, email, birth_place, birth_date, gender, address, phone,
+        (member_number, name, nim, email, birth_place, birth_date, gender, address, phone,
          institution, profession, program, photo_path, signature_path, payment_proof_path, registration_date)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
+        memberNumber,
         name,
         nim,
         email,
@@ -133,7 +139,7 @@ export const registerMember = async (req, res) => {
 
     return successResponse(
       res,
-      { id: result.insertId, nim, email },
+      { id: result.insertId, memberNumber, nim, email },
       'Pendaftaran berhasil! Anda akan menerima email konfirmasi segera.',
       201
     );
@@ -657,6 +663,212 @@ export const rejectRenewal = async (req, res) => {
   } catch (error) {
     console.error('Reject renewal error:', error);
     return errorResponse(res, 'Gagal menolak perpanjangan', 500, error.message);
+  }
+};
+
+// ============================================
+// UPDATE MEMBER (Admin)
+// ============================================
+export const updateMember = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      memberNumber,
+      name,
+      nim,
+      email,
+      birthPlace,
+      birthDate,
+      gender,
+      address,
+      phone,
+      institution,
+      profession,
+      program,
+      registrationDate
+    } = req.body;
+
+    const connection = await pool.getConnection();
+
+    // Check if member exists
+    const [members] = await connection.query(
+      'SELECT * FROM members WHERE id = ?',
+      [id]
+    );
+
+    if (members.length === 0) {
+      connection.release();
+      return errorResponse(res, 'Anggota tidak ditemukan', 404);
+    }
+
+    const currentMember = members[0];
+
+    // Validate required fields
+    const errors = {};
+    if (!name) errors.name = 'Nama harus diisi';
+    if (!nim) errors.nim = 'NIM/NIK harus diisi';
+    if (!email) errors.email = 'Email harus diisi';
+    if (!institution) errors.institution = 'Asal institusi harus diisi';
+
+    if (Object.keys(errors).length > 0) {
+      connection.release();
+      return validationError(res, errors);
+    }
+
+    // Check if member_number is unique (if changed)
+    if (memberNumber && memberNumber !== currentMember.member_number) {
+      const isUnique = await isMemberNumberUnique(memberNumber, id);
+      if (!isUnique) {
+        connection.release();
+        return errorResponse(res, 'Nomor anggota sudah digunakan', 409);
+      }
+    }
+
+    // Check if NIM is unique (if changed)
+    if (nim !== currentMember.nim) {
+      const [existingNim] = await connection.query(
+        'SELECT id FROM members WHERE nim = ? AND id != ?',
+        [nim, id]
+      );
+      if (existingNim.length > 0) {
+        connection.release();
+        return errorResponse(res, 'NIM sudah terdaftar', 409);
+      }
+    }
+
+    // Check if email is unique (if changed)
+    if (email !== currentMember.email) {
+      const [existingEmail] = await connection.query(
+        'SELECT id FROM members WHERE email = ? AND id != ?',
+        [email, id]
+      );
+      if (existingEmail.length > 0) {
+        connection.release();
+        return errorResponse(res, 'Email sudah terdaftar', 409);
+      }
+    }
+
+    // Handle file uploads if provided
+    let photoPath = currentMember.photo_path;
+    let signaturePath = currentMember.signature_path;
+    let paymentProofPath = currentMember.payment_proof_path;
+
+    // Update photo if new file uploaded
+    if (req.files?.photo?.[0]) {
+      photoPath = `/uploads/photos/${req.files.photo[0].filename}`;
+      // Delete old photo if exists
+      if (currentMember.photo_path) {
+        const oldPath = path.join(__dirname, '../../', currentMember.photo_path);
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
+      }
+    }
+
+    // Update payment proof if new file uploaded
+    if (req.files?.paymentProof?.[0]) {
+      paymentProofPath = `/uploads/payments/${req.files.paymentProof[0].filename}`;
+      // Delete old payment proof if exists
+      if (currentMember.payment_proof_path) {
+        const oldPath = path.join(__dirname, '../../', currentMember.payment_proof_path);
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
+      }
+    }
+
+    // Update signature if new file uploaded or base64 provided
+    if (req.files?.signature?.[0]) {
+      signaturePath = `/uploads/signatures/${req.files.signature[0].filename}`;
+      // Delete old signature if exists
+      if (currentMember.signature_path) {
+        const oldPath = path.join(__dirname, '../../', currentMember.signature_path);
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
+      }
+    } else if (req.body.signature && req.body.signature.startsWith('data:image')) {
+      try {
+        const base64Data = req.body.signature.replace(/^data:image\/(png|jpeg);base64,/, '');
+        const buffer = Buffer.from(base64Data, 'base64');
+        const timestamp = Date.now();
+        const random = Math.floor(Math.random() * 10000);
+        const filename = `signature-${timestamp}-${random}.png`;
+        const filepath = path.join(__dirname, `../../uploads/signatures/${filename}`);
+
+        const dir = path.dirname(filepath);
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+
+        fs.writeFileSync(filepath, buffer);
+
+        // Delete old signature if exists
+        if (currentMember.signature_path) {
+          const oldPath = path.join(__dirname, '../../', currentMember.signature_path);
+          if (fs.existsSync(oldPath)) {
+            fs.unlinkSync(oldPath);
+          }
+        }
+
+        signaturePath = `/uploads/signatures/${filename}`;
+      } catch (err) {
+        console.error('Error saving signature:', err);
+      }
+    }
+
+    // Update member in database
+    const [result] = await connection.query(
+      `UPDATE members SET
+        member_number = ?,
+        name = ?,
+        nim = ?,
+        email = ?,
+        birth_place = ?,
+        birth_date = ?,
+        gender = ?,
+        address = ?,
+        phone = ?,
+        institution = ?,
+        profession = ?,
+        program = ?,
+        photo_path = ?,
+        signature_path = ?,
+        payment_proof_path = ?,
+        registration_date = ?,
+        updated_at = NOW()
+      WHERE id = ?`,
+      [
+        memberNumber || currentMember.member_number,
+        name,
+        nim,
+        email,
+        birthPlace || null,
+        birthDate || null,
+        gender || null,
+        address || null,
+        phone || null,
+        institution,
+        profession || null,
+        program || null,
+        photoPath,
+        signaturePath,
+        paymentProofPath,
+        registrationDate || currentMember.registration_date,
+        id
+      ]
+    );
+
+    connection.release();
+
+    return successResponse(
+      res,
+      { id, memberNumber: memberNumber || currentMember.member_number },
+      'Data anggota berhasil diperbarui'
+    );
+  } catch (error) {
+    console.error('Update member error:', error);
+    return errorResponse(res, 'Gagal memperbarui data anggota', 500, error.message);
   }
 };
 
