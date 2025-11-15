@@ -226,8 +226,20 @@ export const approveMember = async (req, res) => {
     const { id } = req.params;
     const connection = await pool.getConnection();
 
-    // Calculate membership expiry date (1 month from now)
-    const expiryDate = new Date();
+    // First, get member data to retrieve registration_date
+    const [memberData] = await connection.query(
+      'SELECT registration_date FROM members WHERE id = ?',
+      [id]
+    );
+
+    if (memberData.length === 0) {
+      connection.release();
+      return errorResponse(res, 'Anggota tidak ditemukan', 404);
+    }
+
+    // Calculate membership expiry date (1 month from registration_date)
+    const registrationDate = memberData[0].registration_date ? new Date(memberData[0].registration_date) : new Date();
+    const expiryDate = new Date(registrationDate);
     expiryDate.setMonth(expiryDate.getMonth() + 1);
     const expiryDateString = expiryDate.toISOString().split('T')[0];
 
@@ -459,6 +471,7 @@ export const getRegistrationTrend = async (req, res) => {
 export const requestRenewal = async (req, res) => {
   try {
     const { id } = req.params;
+    const { reason } = req.body;
     const connection = await pool.getConnection();
 
     // Check if member exists and get full data
@@ -498,10 +511,19 @@ export const requestRenewal = async (req, res) => {
       }
     }
 
-    // Insert renewal request
+    // Validate payment proof upload
+    if (!req.files || !req.files.paymentProof || req.files.paymentProof.length === 0) {
+      connection.release();
+      return errorResponse(res, 'Bukti transfer wajib diunggah', 400);
+    }
+
+    // Get payment proof file path
+    const paymentProofPath = `/uploads/payments/${req.files.paymentProof[0].filename}`;
+
+    // Insert renewal request with payment proof
     const [result] = await connection.query(
-      'INSERT INTO renewals (member_id, request_date, status) VALUES (?, NOW(), ?)',
-      [id, 'pending']
+      'INSERT INTO renewals (member_id, payment_proof_path, request_date, status) VALUES (?, ?, NOW(), ?)',
+      [id, paymentProofPath, 'pending']
     );
 
     connection.release();

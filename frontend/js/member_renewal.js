@@ -204,8 +204,29 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
 
+      // Validate payment proof file
+      const paymentProofInput = document.getElementById('renewalPaymentProof');
+      if (!paymentProofInput.files || paymentProofInput.files.length === 0) {
+        showError('Bukti transfer wajib diunggah');
+        return;
+      }
+
+      const paymentProofFile = paymentProofInput.files[0];
+      const maxSize = 1 * 1024 * 1024; // 1MB
+      if (paymentProofFile.size > maxSize) {
+        showError('Ukuran file bukti transfer maksimal 1MB');
+        return;
+      }
+
       // Get renewal reason (optional)
       const reason = document.getElementById('renewalReason').value.trim();
+
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('paymentProof', paymentProofFile);
+      if (reason) {
+        formData.append('reason', reason);
+      }
 
       // Show loading state
       const submitBtn = renewalForm.querySelector('button[type="submit"]');
@@ -216,10 +237,7 @@ document.addEventListener('DOMContentLoaded', function() {
       try {
         const response = await fetch(`${CONFIG.API.BASE_URL}/members/${currentMemberId}/renewal-request`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ reason: reason || null })
+          body: formData
         });
 
         const data = await response.json();

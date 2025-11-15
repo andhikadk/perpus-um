@@ -120,7 +120,9 @@ router.delete('/:id', authenticateToken, deleteMember);
  * POST /api/members/:id/renewal-request
  * Request membership renewal (Public - no auth required)
  */
-router.post('/:id/renewal-request', requestRenewal);
+router.post('/:id/renewal-request', upload.fields([
+  { name: 'paymentProof', maxCount: 1 }
+]), requestRenewal);
 
 /**
  * GET /api/members/renewals
