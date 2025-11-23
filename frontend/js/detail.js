@@ -84,8 +84,8 @@ window.addEventListener('DOMContentLoaded', async function () {
     const getFileUrl = (path) => {
       if (!path) return null;
       if (path.startsWith('http')) return path;
-      if (path.startsWith('/')) return `http://localhost:3000${path}`;
-      return `http://localhost:3000/${path}`;
+      if (path.startsWith('/')) return `http://16.78.150.77:3000${path}`;
+      return `http://16.78.150.77:3000/${path}`;
     };
 
     // ============================================
