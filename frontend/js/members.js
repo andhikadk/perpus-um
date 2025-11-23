@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error('Failed to fetch members');
         const tbody = document.querySelector('tbody');
         if (tbody) {
-          tbody.innerHTML = '<tr class="hover:bg-gray-50"><td class="px-4 py-3 text-center text-red-500" colspan="6">Gagal memuat data</td></tr>';
+          tbody.innerHTML = '<tr class="hover:bg-gray-50"><td class="px-4 py-3 text-center text-red-500" colspan="7">Gagal memuat data</td></tr>';
         }
         return [];
       }
@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function () {
         tbody.innerHTML = '';
 
         if (members.length === 0) {
-          tbody.innerHTML = '<tr class="hover:bg-gray-50"><td class="px-4 py-3 text-center text-gray-500" colspan="6">Tidak ada data</td></tr>';
+          tbody.innerHTML = '<tr class="hover:bg-gray-50"><td class="px-4 py-3 text-center text-gray-500" colspan="7">Tidak ada data</td></tr>';
           return [];
         }
 
@@ -247,6 +247,7 @@ document.addEventListener('DOMContentLoaded', function () {
           const status = member.status || 'pending';
           const statusLabel = status === 'approved' ? 'Disetujui' : status === 'rejected' ? 'Ditolak' : 'Menunggu';
           const memberNumber = member.member_number || '-';
+          const validityDate = formatValidityDate(member);
 
           tr.innerHTML = `
             <td class="px-4 py-3 text-sm font-medium text-blue-600">${memberNumber}</td>
@@ -256,6 +257,7 @@ document.addEventListener('DOMContentLoaded', function () {
               status === 'rejected' ? 'bg-red-100 text-red-700' :
                 'bg-yellow-100 text-yellow-700'
             }">${statusLabel}</span></td>
+            <td class="px-4 py-3 text-sm text-gray-700">${validityDate}</td>
             <td class="px-4 py-3">
               <button class="text-blue-600 hover:underline view-detail-btn" data-id="${member.id}">
                 Lihat Detail <i class="fas fa-chevron-right text-xs ml-1"></i>
@@ -305,7 +307,7 @@ document.addEventListener('DOMContentLoaded', function () {
       console.error('Error fetching members:', error);
       const tbody = document.querySelector('tbody');
       if (tbody) {
-        tbody.innerHTML = '<tr class="hover:bg-gray-50"><td class="px-4 py-3 text-center text-red-500" colspan="6">Error: ' + error.message + '</td></tr>';
+        tbody.innerHTML = '<tr class="hover:bg-gray-50"><td class="px-4 py-3 text-center text-red-500" colspan="7">Error: ' + error.message + '</td></tr>';
       }
       return [];
     }
@@ -617,6 +619,13 @@ document.addEventListener('DOMContentLoaded', function () {
   // Store filtered members globally
   let currentFilteredMembers = [];
 
+  // Track current filter state - make it more persistent
+  window.currentFilterState = {
+    isActive: false,
+    month: null,
+    year: null
+  };
+
   // Apply month filter
   if (applyFilterBtn) {
     applyFilterBtn.addEventListener('click', async function () {
@@ -645,13 +654,24 @@ document.addEventListener('DOMContentLoaded', function () {
         const data = await response.json();
         currentFilteredMembers = data.data || [];
 
+        // Update filter state
+        window.currentFilterState = {
+          isActive: true,
+          month: parseInt(month),
+          year: parseInt(year)
+        };
+        console.log('=== FILTER STATE UPDATE ===');
+        console.log('Setting filter state to:', window.currentFilterState);
+        console.log('Month value:', month, '->', parseInt(month));
+        console.log('Year value:', year, '->', parseInt(year));
+
         // Populate table with filtered data
         const tbody = document.querySelector('tbody');
         if (tbody) {
           tbody.innerHTML = '';
 
           if (currentFilteredMembers.length === 0) {
-            tbody.innerHTML = '<tr class="hover:bg-gray-50"><td class="px-4 py-3 text-center text-gray-500" colspan="6">Tidak ada data untuk bulan/tahun yang dipilih</td></tr>';
+            tbody.innerHTML = '<tr class="hover:bg-gray-50"><td class="px-4 py-3 text-center text-gray-500" colspan="7">Tidak ada data untuk bulan/tahun yang dipilih</td></tr>';
             return;
           }
 
@@ -663,6 +683,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const status = member.status || 'pending';
             const statusLabel = status === 'approved' ? 'Disetujui' : status === 'rejected' ? 'Ditolak' : 'Menunggu';
             const memberNumber = member.member_number || '-';
+            const validityDate = formatValidityDate(member);
 
             tr.innerHTML = `
               <td class="px-4 py-3 text-sm font-medium text-blue-600">${memberNumber}</td>
@@ -672,6 +693,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 status === 'rejected' ? 'bg-red-100 text-red-700' :
                   'bg-yellow-100 text-yellow-700'
               }">${statusLabel}</span></td>
+              <td class="px-4 py-3 text-sm text-gray-700">${validityDate}</td>
               <td class="px-4 py-3">
                 <button class="text-blue-600 hover:underline view-detail-btn" data-id="${member.id}">
                   Lihat Detail <i class="fas fa-chevron-right text-xs ml-1"></i>
@@ -714,11 +736,14 @@ document.addEventListener('DOMContentLoaded', function () {
           });
         }
 
-        // Update print period text
-        const monthNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        // Update print period text immediately when filter is applied
         const printPeriod = document.getElementById('printPeriod');
         if (printPeriod) {
-          printPeriod.textContent = `Periode: ${monthNames[parseInt(month)]} ${year}`;
+          const periodText = `Periode: ${MONTH_NAMES[parseInt(month)]} ${year}`;
+          printPeriod.textContent = periodText;
+          console.log('Filter applied - print period set to:', periodText);
+        } else {
+          console.error('Print period element not found when applying filter!');
         }
 
       } catch (error) {
@@ -731,13 +756,25 @@ document.addEventListener('DOMContentLoaded', function () {
   // Clear month filter
   if (clearMonthFilterBtn) {
     clearMonthFilterBtn.addEventListener('click', function () {
+      console.log('=== CLEAR FILTER TRIGGERED ===');
       if (monthFilter) monthFilter.value = '';
       if (yearFilter) yearFilter.selectedIndex = 0;
       currentFilteredMembers = [];
+
+      // Reset filter state
+      window.currentFilterState = {
+        isActive: false,
+        month: null,
+        year: null
+      };
+      console.log('Filter state after clear:', window.currentFilterState);
+
+      // Clear print period only when explicitly clearing filter
       const printPeriod = document.getElementById('printPeriod');
       if (printPeriod) {
         printPeriod.textContent = '';
       }
+
       fetchAndPopulateMembers();
     });
   }
@@ -745,24 +782,97 @@ document.addEventListener('DOMContentLoaded', function () {
   // ============================================
   // 9. PRINT FUNCTIONALITY
   // ============================================
+  // Define month names once to avoid conflicts
+  const MONTH_NAMES = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+  // Format validity date for display
+  function formatValidityDate(member) {
+    if (member.status !== 'approved') return '-';
+    if (!member.membership_expiry_date) return 'Aktif';
+
+    try {
+      const expiryDate = new Date(member.membership_expiry_date);
+      const today = new Date();
+
+      if (expiryDate < today) {
+        return `Kadaluarsa (${expiryDate.toLocaleDateString('id-ID')})`;
+      }
+
+      return expiryDate.toLocaleDateString('id-ID');
+    } catch (error) {
+      console.error('Error formatting validity date:', error);
+      return 'Tidak Valid';
+    }
+  }
+
   const printBtn = document.getElementById('printBtn');
   if (printBtn) {
     printBtn.addEventListener('click', function () {
-      // Update print header if no filter is applied
       const printPeriod = document.getElementById('printPeriod');
-      if (printPeriod && !printPeriod.textContent) {
+
+      console.log('=== PRINT BUTTON CLICKED ===');
+      console.log('Current filter state:', window.currentFilterState);
+
+      // Try to determine month/year to print from multiple sources:
+      let month = window.currentFilterState && window.currentFilterState.month;
+      let year = window.currentFilterState && window.currentFilterState.year;
+
+      // Fallback to selects if state not set
+      const monthSelect = document.getElementById('monthFilter');
+      const yearSelect = document.getElementById('yearFilter');
+      if ((!month || !year) && monthSelect && yearSelect) {
+        const m = parseInt(monthSelect.value);
+        const y = parseInt(yearSelect.value);
+        if (!isNaN(m) && m >= 1 && m <= 12 && !isNaN(y)) {
+          month = m;
+          year = y;
+        }
+      }
+
+      // Build text to show in header
+      let printText = '';
+      if (month && year) {
+        printText = `Periode: ${MONTH_NAMES[month]} ${year}`;
+      } else {
         const today = new Date();
-        printPeriod.textContent = `Dicetak pada: ${today.toLocaleDateString('id-ID', {
+        printText = `Dicetak pada: ${today.toLocaleDateString('id-ID', {
           day: 'numeric',
           month: 'long',
           year: 'numeric'
         })}`;
       }
 
-      // Trigger browser print dialog
-      window.print();
+      if (!isNaN(month) && !isNaN(year) && month >= 1 && month <= 12) {
+        printText = `Periode: ${MONTH_NAMES[month]} ${year}`;
+      } else {
+        const today = new Date();
+        printText = `Dicetak pada: ${today.toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        })}`;
+      }
+
+      // Ensure element exists and is visible for print
+      if (printPeriod) {
+        printPeriod.textContent = printText;
+        // ensure visible (some browsers honor inline styles)
+        printPeriod.style.display = 'block';
+        printPeriod.style.visibility = 'visible';
+        printPeriod.style.color = '#1e40af';
+        printPeriod.style.fontWeight = 'bold';
+      } else {
+        console.warn('printPeriod element not found - header will not show period');
+      }
+
+      // small timeout to ensure DOM updates before print dialog
+      setTimeout(() => {
+        console.log('Printing with header:', printText);
+        window.print();
+      }, 120);
     });
   }
+
 
   // Initialize: Load member data
   fetchAndPopulateMembers();
