@@ -493,7 +493,7 @@ export const requestRenewal = async (req, res) => {
       return errorResponse(res, 'Hanya anggota yang disetujui dapat perpanjangan. Status Anda: ' + member.status, 400);
     }
 
-    // Validate membership has expired or about to expire (within 30 days)
+    // Validate membership has already expired (not just expiring soon)
     if (member.membership_expiry_date) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -501,13 +501,16 @@ export const requestRenewal = async (req, res) => {
       const expiryDate = new Date(member.membership_expiry_date);
       expiryDate.setHours(0, 0, 0, 0);
 
-      const thirtyDaysFromNow = new Date(today);
-      thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+      const daysLeft = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
 
-      if (expiryDate > thirtyDaysFromNow) {
+      // Only allow renewal if membership has already expired
+      if (daysLeft >= 0) {
         connection.release();
-        const daysLeft = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
-        return errorResponse(res, `Keanggotaan Anda masih berlaku untuk ${daysLeft} hari ke depan. Perpanjangan dapat dilakukan 30 hari sebelum masa berlaku berakhir.`, 400);
+        if (daysLeft === 0) {
+          return errorResponse(res, 'Keanggotaan Anda berakhir hari ini. Perpanjangan hanya dapat dilakukan setelah masa berlaku berakhir (mulai besok).', 400);
+        } else {
+          return errorResponse(res, `Keanggotaan Anda masih berlaku untuk ${daysLeft} hari ke depan. Perpanjangan hanya dapat dilakukan setelah masa berlaku berakhir.`, 400);
+        }
       }
     }
 

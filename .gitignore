@@ -55,6 +55,7 @@ temp/
 *.db
 *.sqlite
 *.sqlite3
+*.sql
 
 # ============================================
 # BACKUP FILES

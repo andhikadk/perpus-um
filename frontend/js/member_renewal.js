@@ -48,7 +48,7 @@ function getStatusLabel(status) {
   return status;
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   'use strict';
 
   // ============================================
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // ============================================
   const verificationForm = document.getElementById('verificationForm');
   if (verificationForm) {
-    verificationForm.addEventListener('submit', async function(e) {
+    verificationForm.addEventListener('submit', async function (e) {
       e.preventDefault();
 
       hideError();
@@ -104,6 +104,46 @@ document.addEventListener('DOMContentLoaded', function() {
         currentMemberId = member.id;
         currentMemberData = member;
 
+        // Validate member status must be approved first
+        if (member.status !== 'approved') {
+          showError('Anggota tidak ditemukan atau belum disetujui. Hanya anggota yang sudah disetujui dapat mengajukan perpanjangan.');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+          return;
+        }
+
+        // Validate membership expiry - must be already expired (not just expiring soon)
+        if (member.membership_expiry_date) {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+
+          const expiryDate = new Date(member.membership_expiry_date);
+          expiryDate.setHours(0, 0, 0, 0);
+
+          const daysLeft = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+
+          // Debug logging
+          console.log('=== RENEWAL ELIGIBILITY CHECK ===');
+          console.log('Today:', today.toISOString().split('T')[0]);
+          console.log('Expiry Date:', expiryDate.toISOString().split('T')[0]);
+          console.log('Days Left:', daysLeft);
+          console.log('Is Expired:', daysLeft < 0);
+
+          // Only allow renewal if membership has already expired
+          if (daysLeft >= 0) {
+            console.log('❌ BLOCKED: Membership still valid');
+            if (daysLeft === 0) {
+              showError('Keanggotaan Anda berakhir hari ini. Perpanjangan hanya dapat dilakukan setelah masa berlaku berakhir (mulai besok).');
+            } else {
+              showError(`Keanggotaan Anda masih berlaku untuk ${daysLeft} hari ke depan. Perpanjangan hanya dapat dilakukan setelah masa berlaku berakhir.`);
+            }
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+            return;
+          }
+          console.log('✅ ALLOWED: Membership has expired');
+        }
+
         // Display member information
         document.getElementById('displayName').textContent = member.name || '-';
         document.getElementById('displayNim').textContent = member.nim || '-';
@@ -145,20 +185,15 @@ document.addEventListener('DOMContentLoaded', function() {
           statusElement.classList.add('text-yellow-700');
         }
 
-        // Check if member is eligible for renewal (must be approved)
+        // Member is eligible for renewal (approved and expired/expiring soon)
         const eligibleBox = document.getElementById('eligibleBox');
         const ineligibleBox = document.getElementById('ineligibleBox');
         const renewalForm = document.getElementById('renewalForm');
 
-        if (member.status === 'approved') {
-          if (eligibleBox) eligibleBox.classList.remove('hidden');
-          if (ineligibleBox) ineligibleBox.classList.add('hidden');
-          if (renewalForm) renewalForm.classList.remove('hidden');
-        } else {
-          if (eligibleBox) eligibleBox.classList.add('hidden');
-          if (ineligibleBox) ineligibleBox.classList.remove('hidden');
-          if (renewalForm) renewalForm.classList.add('hidden');
-        }
+        // Show eligible message and form
+        if (eligibleBox) eligibleBox.classList.remove('hidden');
+        if (ineligibleBox) ineligibleBox.classList.add('hidden');
+        if (renewalForm) renewalForm.classList.remove('hidden');
 
         // Switch to renewal step
         document.getElementById('verificationStep').classList.add('hidden');
@@ -180,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // ============================================
   const backBtn = document.getElementById('backBtn');
   if (backBtn) {
-    backBtn.addEventListener('click', function() {
+    backBtn.addEventListener('click', function () {
       document.getElementById('renewalStep').classList.add('hidden');
       document.getElementById('verificationStep').classList.remove('hidden');
       currentMemberId = null;
@@ -194,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // ============================================
   const renewalForm = document.getElementById('renewalForm');
   if (renewalForm) {
-    renewalForm.addEventListener('submit', async function(e) {
+    renewalForm.addEventListener('submit', async function (e) {
       e.preventDefault();
 
       hideError();
