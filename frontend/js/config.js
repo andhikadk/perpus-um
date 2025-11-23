@@ -77,11 +77,7 @@ const CONFIG = {
   // API ENDPOINTS
   // ============================================
   API: {
-<<<<<<< HEAD
-    BASE_URL: 'http://localhost:3000/api',
-=======
     BASE_URL: 'http://16.78.150.77:3000/api',
->>>>>>> 9c73c2302f293466af1cad8d367a0196d1c3f90a
     ENDPOINTS: {
       // Auth
       LOGIN: '/auth/login',
