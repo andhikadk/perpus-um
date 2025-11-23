@@ -11,16 +11,6 @@ const CONFIG = {
   APP_VERSION: '1.0.0',
 
   // ============================================
-  // AUTHENTICATION (Temporary - for frontend only)
-  // Will be replaced with API authentication in Phase 2
-  // ============================================
-  AUTH: {
-    ADMIN_EMAIL: 'admin@gmail.com',
-    ADMIN_PASSWORD: 'admin',
-    // Note: These should NEVER be in frontend code in production!
-  },
-
-  // ============================================
   // CONTACT INFORMATION
   // ============================================
   CONTACT: {
@@ -87,7 +77,7 @@ const CONFIG = {
   // API ENDPOINTS
   // ============================================
   API: {
-    BASE_URL: '/api',
+    BASE_URL: 'http://localhost:3000/api',
     ENDPOINTS: {
       // Auth
       LOGIN: '/auth/login',

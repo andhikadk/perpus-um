@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +10,8 @@
     <link rel="stylesheet" href="./css/color.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
-<body class="bg-gray-50 font-sans text-gray-900">    <!-- Header -->
+
+<body class="bg-gray-50 font-sans text-gray-900"> <!-- Header -->
     <header class="bg-white backdrop-blur-md shadow-sm sticky top-0 z-20">
         <div class="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
             <div class="flex items-center gap-3">
@@ -17,13 +19,15 @@
                 <span class="text-lg md:text-xl font-bold tracking-wide">Perpustakaan Universitas Negeri Malang</span>
             </div>
             <div class="relative">
-                <button id="profileButton" class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 transition">
+                <button id="profileButton"
+                    class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 transition">
                     <i class="fas fa-user-circle text-xl text-gray-700"></i>
                     <span class="font-medium">Admin</span>
                     <i class="fas fa-chevron-down text-xs text-gray-500"></i>
                 </button>
                 <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2">
-                    <button id="logoutBtn" class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <button id="logoutBtn"
+                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         <i class="fas fa-sign-out-alt mr-2"></i>Logout
                     </button>
                 </div>
@@ -61,12 +65,14 @@
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Tempat Lahir</label>
-                                <div id="detail-birthPlace" class="px-4 py-2.5 bg-gray-50 rounded-lg text-gray-900"></div>
+                                <div id="detail-birthPlace" class="px-4 py-2.5 bg-gray-50 rounded-lg text-gray-900">
+                                </div>
                             </div>
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Lahir</label>
-                                <div id="detail-birthDate" class="px-4 py-2.5 bg-gray-50 rounded-lg text-gray-900"></div>
+                                <div id="detail-birthDate" class="px-4 py-2.5 bg-gray-50 rounded-lg text-gray-900">
+                                </div>
                             </div>
 
                             <div>
@@ -76,7 +82,8 @@
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
-                                <div id="detail-address" class="px-4 py-2.5 bg-gray-50 rounded-lg text-gray-900 whitespace-pre-line"></div>
+                                <div id="detail-address"
+                                    class="px-4 py-2.5 bg-gray-50 rounded-lg text-gray-900 whitespace-pre-line"></div>
                             </div>
 
                             <div>
@@ -86,7 +93,8 @@
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Pas Foto</label>
-                                <img id="detail-foto" src="./assets/logo-um.png" alt="Pas Foto" class="h-24 w-20 object-cover rounded-lg border border-gray-200 bg-white">
+                                <img id="detail-foto" src="./assets/logo-um.png" alt="Pas Foto"
+                                    class="h-24 w-20 object-cover rounded-lg border border-gray-200 bg-white">
                             </div>
                         </div>
                     </div>
@@ -101,11 +109,14 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Profesi</label>
-                                <div id="detail-profession" class="px-4 py-2.5 bg-gray-50 rounded-lg text-gray-900"></div>
+                                <div id="detail-profession" class="px-4 py-2.5 bg-gray-50 rounded-lg text-gray-900">
+                                </div>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Fakultas/Program Studi</label>
-                                <div id="detail-institution" class="px-4 py-2.5 bg-gray-50 rounded-lg text-gray-900"></div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Fakultas/Program
+                                    Studi</label>
+                                <div id="detail-institution" class="px-4 py-2.5 bg-gray-50 rounded-lg text-gray-900">
+                                </div>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Pendaftaran</label>
@@ -117,20 +128,25 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Tanda Tangan</label>
-                                <div id="detail-signature" class="px-4 py-2.5 bg-gray-50 rounded-lg text-gray-900"></div>
+                                <div id="detail-signature" class="px-4 py-2.5 bg-gray-50 rounded-lg text-gray-900">
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Action Buttons -->
                     <div class="flex items-center justify-end space-x-4 pt-6 border-t">
-                        <a href="#" id="back-btn" class="px-6 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors duration-150 focus:outline-none">
+                        <a href="#" id="back-btn"
+                            class="px-6 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors duration-150 focus:outline-none">
                             <i class="fas fa-arrow-left mr-2"></i> Kembali
                         </a>
-                        <button id="reject-btn" class="px-6 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors duration-150 focus:outline-none" title="Tolak pendaftaran">
+                        <button id="reject-btn"
+                            class="px-6 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors duration-150 focus:outline-none"
+                            title="Tolak pendaftaran">
                             <i class="fas fa-times mr-2"></i> Tidak Setuju
                         </button>
-                        <button id="approve-btn" class="px-6 py-2 bg-yellow-400 text-gray-900 rounded-lg hover:bg-yellow-500 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2">
+                        <button id="approve-btn"
+                            class="px-6 py-2 bg-yellow-400 text-gray-900 rounded-lg hover:bg-yellow-500 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2">
                             <i class="fas fa-check mr-2"></i> Setujui
                         </button>
                     </div>
@@ -138,6 +154,20 @@
             </div>
         </div>
     </main>
+
+    <!-- Image Modal for Enlargement -->
+    <div id="imageModal" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
+        style="backdrop-filter: blur(4px);">
+        <div class="relative max-w-5xl max-h-screen">
+            <button id="closeImageModal"
+                class="absolute -top-10 right-0 text-white hover:text-gray-300 transition-colors">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+            <img id="modalImage" src="" alt="Enlarged Image"
+                class="max-w-full max-h-screen object-contain rounded-lg shadow-2xl">
+            <p id="modalImageCaption" class="text-white text-center mt-4 text-sm"></p>
+        </div>
+    </div>
 
     <!-- Rejection Reason Modal -->
     <div id="rejectionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
@@ -149,10 +179,7 @@
                     <label for="rejectionReason" class="block text-sm font-medium text-gray-700 mb-2">
                         Masukkan alasan penolakan pendaftaran:
                     </label>
-                    <textarea
-                        id="rejectionReason"
-                        name="reason"
-                        rows="4"
+                    <textarea id="rejectionReason" name="reason" rows="4"
                         placeholder="Contoh: Dokumen tidak lengkap, KTP tidak jelas, dll."
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                         required>
@@ -160,14 +187,11 @@
                 </div>
 
                 <div class="flex gap-2">
-                    <button
-                        type="button"
-                        id="cancelRejectionBtn"
+                    <button type="button" id="cancelRejectionBtn"
                         class="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
                         Batal
                     </button>
-                    <button
-                        type="submit"
+                    <button type="submit"
                         class="flex-1 px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition">
                         Tolak Pendaftaran
                     </button>
@@ -182,21 +206,25 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
                 <div>
                     <h3 class="text-lg font-bold mb-3">Perpustakaan Universitas Negeri Malang</h3>
-                    <p class="text-gray-500 text-sm">Menyediakan sumber daya dan layanan akademis untuk mendukung pendidikan dan penelitian.</p>
+                    <p class="text-gray-500 text-sm">Menyediakan sumber daya dan layanan akademis untuk mendukung
+                        pendidikan dan penelitian.</p>
                 </div>
                 <div>
                     <h3 class="text-lg font-bold mb-3">Akses Lain</h3>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="./index.html" class="text-gray-600 hover:text-yellow-600 transition">Beranda</a></li>
+                        <li><a href="./index.html" class="text-gray-600 hover:text-yellow-600 transition">Beranda</a>
+                        </li>
                         <li><a href="about.html" class="text-gray-600 hover:text-yellow-600 transition">Tentang</a></li>
-                        <li><a href="requirements.html" class="text-gray-600 hover:text-yellow-600 transition">Persyaratan</a></li>
+                        <li><a href="requirements.html"
+                                class="text-gray-600 hover:text-yellow-600 transition">Persyaratan</a></li>
                         <li><a href="login.html" class="text-gray-600 hover:text-yellow-600 transition">Login</a></li>
                     </ul>
                 </div>
                 <div>
                     <h3 class="text-lg font-bold mb-3">Kontak</h3>
                     <ul class="space-y-2 text-sm text-gray-600">
-                        <li class="flex items-center gap-2"><i class="fas fa-map-marker-alt w-5"></i> Jl. Semarang 5 Malang 65145 Jawa Timur – Indonesia</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-map-marker-alt w-5"></i> Jl. Semarang 5
+                            Malang 65145 Jawa Timur – Indonesia</li>
                         <li class="flex items-center gap-2"><i class="fas fa-phone w-5"></i> (0341) 571035</li>
                         <li class="flex items-center gap-2"><i class="fas fa-envelope w-5"></i> library@um.ac.id</li>
                     </ul>
@@ -204,16 +232,20 @@
                 <div>
                     <h3 class="text-lg font-bold mb-3">Jam Layanan</h3>
                     <ul class="space-y-2 text-sm text-gray-600">
-                        <li class="flex items-center gap-2"><i class="fas fa-clock w-5"></i> Senin - Jumat : 08.00 - 15.00 WIB</li>
-                        <li class="flex items-center gap-2"><i class="fas fa-clock w-5"></i> Sabtu : 09.00 - 14:00 WIB</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-clock w-5"></i> Senin - Jumat : 08.00 -
+                            15.00 WIB</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-clock w-5"></i> Sabtu : 09.00 - 14:00 WIB
+                        </li>
                     </ul>
                 </div>
             </div>
-            <div class="text-center text-gray-400 text-sm pt-6 border-t border-gray-100">&copy; 2025 Perpustakaan Universitas Negeri Malang. All rights reserved.</div>
+            <div class="text-center text-gray-400 text-sm pt-6 border-t border-gray-100">&copy; 2025 Perpustakaan
+                Universitas Negeri Malang. All rights reserved.</div>
         </div>
     </footer>
 
     <script src="./js/config.js"></script>
     <script src="./js/detail.js"></script>
 </body>
+
 </html>

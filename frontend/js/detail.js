@@ -17,7 +17,7 @@ function getQueryParam(param) {
 function initializeLogout() {
   const logoutBtn = document.getElementById('logoutBtn');
   if (logoutBtn) {
-    logoutBtn.addEventListener('click', async function(e) {
+    logoutBtn.addEventListener('click', async function (e) {
       e.preventDefault();
 
       const token = localStorage.getItem('authToken');
@@ -45,7 +45,7 @@ function initializeLogout() {
 }
 
 // Initialize page on DOM ready
-window.addEventListener('DOMContentLoaded', async function() {
+window.addEventListener('DOMContentLoaded', async function () {
   'use strict';
 
   // Initialize logout button
@@ -99,7 +99,7 @@ window.addEventListener('DOMContentLoaded', async function() {
     if (member.photo_path) {
       const fotoEl = document.getElementById('detail-foto');
       fotoEl.src = getFileUrl(member.photo_path);
-      fotoEl.onerror = function() {
+      fotoEl.onerror = function () {
         this.src = './assets/logo-um.png';
       };
     }
@@ -157,6 +157,75 @@ window.addEventListener('DOMContentLoaded', async function() {
       }
     }
 
+    // ============================================
+    // 5. IMAGE MODAL FUNCTIONALITY
+    // ============================================
+    const imageModal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    const modalImageCaption = document.getElementById('modalImageCaption');
+    const closeImageModal = document.getElementById('closeImageModal');
+
+    // Function to open image modal
+    function openImageModal(imageSrc, caption) {
+      modalImage.src = imageSrc;
+      modalImageCaption.textContent = caption || '';
+      imageModal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+
+    // Function to close image modal
+    function closeModal() {
+      imageModal.classList.add('hidden');
+      document.body.style.overflow = ''; // Restore scrolling
+    }
+
+    // Close modal button
+    if (closeImageModal) {
+      closeImageModal.addEventListener('click', closeModal);
+    }
+
+    // Close modal when clicking outside the image
+    if (imageModal) {
+      imageModal.addEventListener('click', function (e) {
+        if (e.target === imageModal) {
+          closeModal();
+        }
+      });
+    }
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !imageModal.classList.contains('hidden')) {
+        closeModal();
+      }
+    });
+
+    // Make pas foto clickable
+    const fotoEl = document.getElementById('detail-foto');
+    if (fotoEl && member.photo_path) {
+      fotoEl.style.cursor = 'pointer';
+      fotoEl.title = 'Klik untuk memperbesar';
+      fotoEl.addEventListener('click', function () {
+        openImageModal(this.src, 'Pas Foto - ' + member.name);
+      });
+    }
+
+    // Make bukti transfer clickable (if it's an image)
+    const paymentEl = document.getElementById('detail-payment');
+    if (paymentEl && member.payment_proof_path) {
+      const lower = member.payment_proof_path.toLowerCase();
+      if (!lower.endsWith('.pdf')) {
+        const paymentImg = paymentEl.querySelector('img');
+        if (paymentImg) {
+          paymentImg.style.cursor = 'pointer';
+          paymentImg.title = 'Klik untuk memperbesar';
+          paymentImg.addEventListener('click', function () {
+            openImageModal(this.src, 'Bukti Transfer - ' + member.name);
+          });
+        }
+      }
+    }
+
   } catch (error) {
     console.error('Error loading member data:', error);
     alert('Gagal memuat data anggota: ' + error.message);
@@ -174,7 +243,7 @@ window.addEventListener('DOMContentLoaded', async function() {
   const cancelRejectionBtn = document.getElementById('cancelRejectionBtn');
 
   if (approveBtn) {
-    approveBtn.addEventListener('click', async function() {
+    approveBtn.addEventListener('click', async function () {
       // Show confirmation
       const confirmed = confirm('Apakah Anda yakin ingin menyetujui pendaftaran ini?');
       if (!confirmed) return;
@@ -215,21 +284,21 @@ window.addEventListener('DOMContentLoaded', async function() {
   }
 
   if (rejectBtn) {
-    rejectBtn.addEventListener('click', function() {
+    rejectBtn.addEventListener('click', function () {
       // Show rejection reason modal
       rejectionModal.classList.remove('hidden');
     });
   }
 
   if (cancelRejectionBtn) {
-    cancelRejectionBtn.addEventListener('click', function() {
+    cancelRejectionBtn.addEventListener('click', function () {
       rejectionModal.classList.add('hidden');
       rejectionForm.reset();
     });
   }
 
   if (rejectionForm) {
-    rejectionForm.addEventListener('submit', async function(e) {
+    rejectionForm.addEventListener('submit', async function (e) {
       e.preventDefault();
 
       const reason = document.getElementById('rejectionReason').value.trim();
@@ -277,7 +346,7 @@ window.addEventListener('DOMContentLoaded', async function() {
   }
 
   // Close modal when clicking outside
-  rejectionModal.addEventListener('click', function(e) {
+  rejectionModal.addEventListener('click', function (e) {
     if (e.target === rejectionModal) {
       rejectionModal.classList.add('hidden');
       rejectionForm.reset();
@@ -286,7 +355,7 @@ window.addEventListener('DOMContentLoaded', async function() {
 
   const backBtn = document.getElementById('back-btn');
   if (backBtn) {
-    backBtn.addEventListener('click', function(event) {
+    backBtn.addEventListener('click', function (event) {
       event.preventDefault();
       window.location.href = 'view_table_mahasiswa.html#data';
     });
