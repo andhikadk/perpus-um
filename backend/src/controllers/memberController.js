@@ -6,6 +6,7 @@
 import pool from '../config/database.js';
 import { successResponse, errorResponse, validationError } from '../utils/responseHandler.js';
 import { sendRegistrationConfirmation, sendApprovalEmail, sendRejectionEmail, sendRenewalApprovalEmail, sendRenewalRejectionEmail } from '../services/emailService.js';
+import { generateMemberNumber, isMemberNumberUnique } from '../utils/memberNumberGenerator.js';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -91,13 +92,18 @@ export const registerMember = async (req, res) => {
       }
     }
 
+    // Generate unique member number
+    const regDate = registrationDate ? new Date(registrationDate) : new Date();
+    const memberNumber = await generateMemberNumber(regDate);
+
     // Insert into database
     const [result] = await connection.query(
       `INSERT INTO members
-        (name, nim, email, birth_place, birth_date, gender, address, phone,
+        (member_number, name, nim, email, birth_place, birth_date, gender, address, phone,
          institution, profession, program, photo_path, signature_path, payment_proof_path, registration_date)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
+        memberNumber,
         name,
         nim,
         email,
@@ -133,7 +139,7 @@ export const registerMember = async (req, res) => {
 
     return successResponse(
       res,
-      { id: result.insertId, nim, email },
+      { id: result.insertId, memberNumber, nim, email },
       'Pendaftaran berhasil! Anda akan menerima email konfirmasi segera.',
       201
     );
@@ -220,9 +226,21 @@ export const approveMember = async (req, res) => {
     const { id } = req.params;
     const connection = await pool.getConnection();
 
-    // Calculate membership expiry date (1 year from now)
-    const expiryDate = new Date();
-    expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+    // First, get member data to retrieve registration_date
+    const [memberData] = await connection.query(
+      'SELECT registration_date FROM members WHERE id = ?',
+      [id]
+    );
+
+    if (memberData.length === 0) {
+      connection.release();
+      return errorResponse(res, 'Anggota tidak ditemukan', 404);
+    }
+
+    // Calculate membership expiry date (1 month from registration_date)
+    const registrationDate = memberData[0].registration_date ? new Date(memberData[0].registration_date) : new Date();
+    const expiryDate = new Date(registrationDate);
+    expiryDate.setMonth(expiryDate.getMonth() + 1);
     const expiryDateString = expiryDate.toISOString().split('T')[0];
 
     // Update member status and set expiry date
@@ -321,18 +339,21 @@ export const getDashboardStats = async (req, res) => {
       'SELECT COUNT(*) as total FROM members'
     );
 
-    const [approvedStats] = await connection.query(
-      'SELECT COUNT(*) as approved FROM members WHERE status = "approved"'
+    // Active members: approved AND (not expired OR no expiry date set)
+    const [activeStats] = await connection.query(
+      `SELECT COUNT(*) as active FROM members
+       WHERE status = "approved"
+       AND (membership_expiry_date >= CURDATE() OR membership_expiry_date IS NULL)`
     );
 
-    const [pendingStats] = await connection.query(
-      'SELECT COUNT(*) as pending FROM members WHERE status = "pending"'
+    // Inactive members: pending, rejected, or expired approved members
+    const [inactiveStats] = await connection.query(
+      `SELECT COUNT(*) as inactive FROM members
+       WHERE status IN ("pending", "rejected")
+       OR (status = "approved" AND membership_expiry_date < CURDATE())`
     );
 
-    const [rejectedStats] = await connection.query(
-      'SELECT COUNT(*) as rejected FROM members WHERE status = "rejected"'
-    );
-
+    // New registrations in last 7 days
     const [newStats] = await connection.query(
       `SELECT COUNT(*) as new FROM members
        WHERE registration_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)`
@@ -342,9 +363,8 @@ export const getDashboardStats = async (req, res) => {
 
     return successResponse(res, {
       total: totalStats[0].total,
-      approved: approvedStats[0].approved,
-      pending: pendingStats[0].pending,
-      rejected: rejectedStats[0].rejected,
+      active: activeStats[0].active,
+      inactive: inactiveStats[0].inactive,
       newRegistrations: newStats[0].new
     }, 'Statistik dashboard');
   } catch (error) {
@@ -354,11 +374,104 @@ export const getDashboardStats = async (req, res) => {
 };
 
 // ============================================
+// GET PROFESSION STATISTICS
+// ============================================
+export const getProfessionStats = async (req, res) => {
+  try {
+    const connection = await pool.getConnection();
+
+    // Get profession statistics for approved members only
+    const [professionStats] = await connection.query(
+      `SELECT profession, COUNT(*) as count
+       FROM members
+       WHERE status = "approved" AND profession IN ("Mahasiswa", "Umum")
+       GROUP BY profession`
+    );
+
+    connection.release();
+
+    // Format the result for pie chart
+    const result = {
+      Mahasiswa: 0,
+      Umum: 0
+    };
+
+    professionStats.forEach(stat => {
+      if (stat.profession === 'Mahasiswa' || stat.profession === 'Umum') {
+        result[stat.profession] = stat.count;
+      }
+    });
+
+    return successResponse(res, result, 'Statistik profesi');
+  } catch (error) {
+    console.error('Profession stats error:', error);
+    return errorResponse(res, 'Gagal mengambil statistik profesi', 500, error.message);
+  }
+};
+
+// ============================================
+// GET REGISTRATION TREND (for line chart)
+// ============================================
+export const getRegistrationTrend = async (req, res) => {
+  try {
+    const { days = 30 } = req.query; // Default to 30 days
+    const numDays = parseInt(days);
+
+    if (isNaN(numDays) || numDays < 1 || numDays > 365) {
+      return errorResponse(res, 'Parameter days harus antara 1-365', 400);
+    }
+
+    const connection = await pool.getConnection();
+
+    // Get registration counts grouped by date for the last N days
+    const [trendData] = await connection.query(
+      `SELECT DATE(registration_date) as date, COUNT(*) as count
+       FROM members
+       WHERE registration_date >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+       GROUP BY DATE(registration_date)
+       ORDER BY date ASC`,
+      [numDays]
+    );
+
+    connection.release();
+
+    // Create complete date range with 0 counts for missing dates
+    const result = [];
+    const dateMap = new Map();
+
+    // Map existing data
+    trendData.forEach(row => {
+      const dateStr = row.date.toISOString().split('T')[0];
+      dateMap.set(dateStr, row.count);
+    });
+
+    // Fill all dates in range
+    const today = new Date();
+    for (let i = numDays - 1; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+
+      result.push({
+        date: dateStr,
+        count: dateMap.get(dateStr) || 0
+      });
+    }
+
+    return successResponse(res, result, 'Tren pendaftaran');
+  } catch (error) {
+    console.error('Registration trend error:', error);
+    return errorResponse(res, 'Gagal mengambil tren pendaftaran', 500, error.message);
+  }
+};
+
+// ============================================
 // REQUEST MEMBERSHIP RENEWAL
 // ============================================
 export const requestRenewal = async (req, res) => {
   try {
     const { id } = req.params;
+    const { reason } = req.body;
     const connection = await pool.getConnection();
 
     // Check if member exists and get full data
@@ -398,10 +511,19 @@ export const requestRenewal = async (req, res) => {
       }
     }
 
-    // Insert renewal request
+    // Validate payment proof upload
+    if (!req.files || !req.files.paymentProof || req.files.paymentProof.length === 0) {
+      connection.release();
+      return errorResponse(res, 'Bukti transfer wajib diunggah', 400);
+    }
+
+    // Get payment proof file path
+    const paymentProofPath = `/uploads/payments/${req.files.paymentProof[0].filename}`;
+
+    // Insert renewal request with payment proof
     const [result] = await connection.query(
-      'INSERT INTO renewals (member_id, request_date, status) VALUES (?, NOW(), ?)',
-      [id, 'pending']
+      'INSERT INTO renewals (member_id, payment_proof_path, request_date, status) VALUES (?, ?, NOW(), ?)',
+      [id, paymentProofPath, 'pending']
     );
 
     connection.release();
@@ -465,13 +587,13 @@ export const approveRenewal = async (req, res) => {
     const renewal = renewalData[0];
     const currentExpiryDate = renewal.membership_expiry_date ? new Date(renewal.membership_expiry_date) : new Date();
 
-    // Calculate new expiry date (extend 1 year from current expiry or from today if expired)
+    // Calculate new expiry date (extend 1 month from current expiry or from today if expired)
     const newExpiryDate = new Date(currentExpiryDate);
     if (currentExpiryDate < new Date()) {
       // If already expired, count from today
       newExpiryDate.setDate(new Date().getDate());
     }
-    newExpiryDate.setFullYear(newExpiryDate.getFullYear() + 1);
+    newExpiryDate.setMonth(newExpiryDate.getMonth() + 1);
     const newExpiryDateString = newExpiryDate.toISOString().split('T')[0];
 
     // Update renewal status and member expiry date
@@ -563,5 +685,272 @@ export const rejectRenewal = async (req, res) => {
   } catch (error) {
     console.error('Reject renewal error:', error);
     return errorResponse(res, 'Gagal menolak perpanjangan', 500, error.message);
+  }
+};
+
+// ============================================
+// UPDATE MEMBER (Admin)
+// ============================================
+export const updateMember = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      memberNumber,
+      name,
+      nim,
+      email,
+      birthPlace,
+      birthDate,
+      gender,
+      address,
+      phone,
+      institution,
+      profession,
+      program,
+      registrationDate
+    } = req.body;
+
+    const connection = await pool.getConnection();
+
+    // Check if member exists
+    const [members] = await connection.query(
+      'SELECT * FROM members WHERE id = ?',
+      [id]
+    );
+
+    if (members.length === 0) {
+      connection.release();
+      return errorResponse(res, 'Anggota tidak ditemukan', 404);
+    }
+
+    const currentMember = members[0];
+
+    // Validate required fields
+    const errors = {};
+    if (!name) errors.name = 'Nama harus diisi';
+    if (!nim) errors.nim = 'NIM/NIK harus diisi';
+    if (!email) errors.email = 'Email harus diisi';
+    if (!institution) errors.institution = 'Asal institusi harus diisi';
+
+    if (Object.keys(errors).length > 0) {
+      connection.release();
+      return validationError(res, errors);
+    }
+
+    // Check if member_number is unique (if changed)
+    if (memberNumber && memberNumber !== currentMember.member_number) {
+      const isUnique = await isMemberNumberUnique(memberNumber, id);
+      if (!isUnique) {
+        connection.release();
+        return errorResponse(res, 'Nomor anggota sudah digunakan', 409);
+      }
+    }
+
+    // Check if NIM is unique (if changed)
+    if (nim !== currentMember.nim) {
+      const [existingNim] = await connection.query(
+        'SELECT id FROM members WHERE nim = ? AND id != ?',
+        [nim, id]
+      );
+      if (existingNim.length > 0) {
+        connection.release();
+        return errorResponse(res, 'NIM sudah terdaftar', 409);
+      }
+    }
+
+    // Check if email is unique (if changed)
+    if (email !== currentMember.email) {
+      const [existingEmail] = await connection.query(
+        'SELECT id FROM members WHERE email = ? AND id != ?',
+        [email, id]
+      );
+      if (existingEmail.length > 0) {
+        connection.release();
+        return errorResponse(res, 'Email sudah terdaftar', 409);
+      }
+    }
+
+    // Handle file uploads if provided
+    let photoPath = currentMember.photo_path;
+    let signaturePath = currentMember.signature_path;
+    let paymentProofPath = currentMember.payment_proof_path;
+
+    // Update photo if new file uploaded
+    if (req.files?.photo?.[0]) {
+      photoPath = `/uploads/photos/${req.files.photo[0].filename}`;
+      // Delete old photo if exists
+      if (currentMember.photo_path) {
+        const oldPath = path.join(__dirname, '../../', currentMember.photo_path);
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
+      }
+    }
+
+    // Update payment proof if new file uploaded
+    if (req.files?.paymentProof?.[0]) {
+      paymentProofPath = `/uploads/payments/${req.files.paymentProof[0].filename}`;
+      // Delete old payment proof if exists
+      if (currentMember.payment_proof_path) {
+        const oldPath = path.join(__dirname, '../../', currentMember.payment_proof_path);
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
+      }
+    }
+
+    // Update signature if new file uploaded or base64 provided
+    if (req.files?.signature?.[0]) {
+      signaturePath = `/uploads/signatures/${req.files.signature[0].filename}`;
+      // Delete old signature if exists
+      if (currentMember.signature_path) {
+        const oldPath = path.join(__dirname, '../../', currentMember.signature_path);
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
+      }
+    } else if (req.body.signature && req.body.signature.startsWith('data:image')) {
+      try {
+        const base64Data = req.body.signature.replace(/^data:image\/(png|jpeg);base64,/, '');
+        const buffer = Buffer.from(base64Data, 'base64');
+        const timestamp = Date.now();
+        const random = Math.floor(Math.random() * 10000);
+        const filename = `signature-${timestamp}-${random}.png`;
+        const filepath = path.join(__dirname, `../../uploads/signatures/${filename}`);
+
+        const dir = path.dirname(filepath);
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+
+        fs.writeFileSync(filepath, buffer);
+
+        // Delete old signature if exists
+        if (currentMember.signature_path) {
+          const oldPath = path.join(__dirname, '../../', currentMember.signature_path);
+          if (fs.existsSync(oldPath)) {
+            fs.unlinkSync(oldPath);
+          }
+        }
+
+        signaturePath = `/uploads/signatures/${filename}`;
+      } catch (err) {
+        console.error('Error saving signature:', err);
+      }
+    }
+
+    // Update member in database
+    const [result] = await connection.query(
+      `UPDATE members SET
+        member_number = ?,
+        name = ?,
+        nim = ?,
+        email = ?,
+        birth_place = ?,
+        birth_date = ?,
+        gender = ?,
+        address = ?,
+        phone = ?,
+        institution = ?,
+        profession = ?,
+        program = ?,
+        photo_path = ?,
+        signature_path = ?,
+        payment_proof_path = ?,
+        registration_date = ?,
+        updated_at = NOW()
+      WHERE id = ?`,
+      [
+        memberNumber || currentMember.member_number,
+        name,
+        nim,
+        email,
+        birthPlace || null,
+        birthDate || null,
+        gender || null,
+        address || null,
+        phone || null,
+        institution,
+        profession || null,
+        program || null,
+        photoPath,
+        signaturePath,
+        paymentProofPath,
+        registrationDate || currentMember.registration_date,
+        id
+      ]
+    );
+
+    connection.release();
+
+    return successResponse(
+      res,
+      { id, memberNumber: memberNumber || currentMember.member_number },
+      'Data anggota berhasil diperbarui'
+    );
+  } catch (error) {
+    console.error('Update member error:', error);
+    return errorResponse(res, 'Gagal memperbarui data anggota', 500, error.message);
+  }
+};
+
+// ============================================
+// DELETE MEMBER (Admin)
+// ============================================
+export const deleteMember = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const connection = await pool.getConnection();
+
+    // First, get member data to delete associated files
+    const [members] = await connection.query(
+      'SELECT * FROM members WHERE id = ?',
+      [id]
+    );
+
+    if (members.length === 0) {
+      connection.release();
+      return errorResponse(res, 'Anggota tidak ditemukan', 404);
+    }
+
+    const member = members[0];
+
+    // Delete associated files from filesystem
+    const filesToDelete = [
+      member.photo_path,
+      member.signature_path,
+      member.payment_proof_path
+    ].filter(Boolean); // Remove null/undefined values
+
+    filesToDelete.forEach(filePath => {
+      try {
+        // Convert relative path to absolute path
+        const absolutePath = path.join(__dirname, '../../', filePath);
+        if (fs.existsSync(absolutePath)) {
+          fs.unlinkSync(absolutePath);
+          console.log(`Deleted file: ${absolutePath}`);
+        }
+      } catch (err) {
+        console.error(`Error deleting file ${filePath}:`, err);
+        // Continue even if file deletion fails
+      }
+    });
+
+    // Delete member from database
+    const [result] = await connection.query(
+      'DELETE FROM members WHERE id = ?',
+      [id]
+    );
+
+    connection.release();
+
+    return successResponse(
+      res,
+      { id },
+      'Anggota berhasil dihapus'
+    );
+  } catch (error) {
+    console.error('Delete member error:', error);
+    return errorResponse(res, 'Gagal menghapus anggota', 500, error.message);
   }
 };

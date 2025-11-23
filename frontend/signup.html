@@ -151,8 +151,12 @@
                                 <label for="profession" class="block text-gray-700 text-sm font-medium mb-1">Profesi</label>
                                 <div class="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-yellow-400 transition-all duration-300">
                                     <i class="fas fa-briefcase text-gray-400 mr-3"></i>
-                                    <input type="text" id="profession" name="profession" required placeholder="Masukkan profesi atau jabatan"
+                                    <select id="profession" name="profession" required
                                         class="appearance-none bg-transparent border-none w-full text-gray-700 py-1 px-2 leading-tight focus:outline-none">
+                                        <option value="" disabled selected>Pilih profesi</option>
+                                        <option value="Mahasiswa">Mahasiswa</option>
+                                        <option value="Umum">Umum</option>
+                                    </select>
                                 </div>
                             </div>
                             <div>

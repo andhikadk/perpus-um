@@ -12,10 +12,14 @@ import {
   approveMember,
   rejectMember,
   getDashboardStats,
+  getProfessionStats,
+  getRegistrationTrend,
   requestRenewal,
   getRenewals,
   approveRenewal,
-  rejectRenewal
+  rejectRenewal,
+  updateMember,
+  deleteMember
 } from '../controllers/memberController.js';
 import { upload } from '../middleware/upload.js';
 import { authenticateToken } from '../middleware/auth.js';
@@ -60,6 +64,21 @@ router.get('/', authenticateToken, getAllMembers);
 router.get('/dashboard/stats', authenticateToken, getDashboardStats);
 
 /**
+ * GET /api/members/dashboard/profession-stats
+ * Get profession statistics for pie chart (Admin only)
+ * Note: Must come before /:id route to avoid matching as /:id
+ */
+router.get('/dashboard/profession-stats', authenticateToken, getProfessionStats);
+
+/**
+ * GET /api/members/dashboard/registration-trend
+ * Get registration trend for line chart (Admin only)
+ * Query params: days (optional, default 30)
+ * Note: Must come before /:id route to avoid matching as /:id
+ */
+router.get('/dashboard/registration-trend', authenticateToken, getRegistrationTrend);
+
+/**
  * GET /api/members/:id
  * Get member by ID (Admin only)
  */
@@ -77,6 +96,22 @@ router.put('/:id/approve', authenticateToken, approveMember);
  */
 router.put('/:id/reject', authenticateToken, rejectMember);
 
+/**
+ * PUT /api/members/:id
+ * Update member data (Admin only)
+ */
+router.put('/:id', authenticateToken, upload.fields([
+  { name: 'photo', maxCount: 1 },
+  { name: 'signature', maxCount: 1 },
+  { name: 'paymentProof', maxCount: 1 }
+]), updateMember);
+
+/**
+ * DELETE /api/members/:id
+ * Delete member (Admin only)
+ */
+router.delete('/:id', authenticateToken, deleteMember);
+
 // ============================================
 // RENEWAL ROUTES (Admin only - JWT required)
 // ============================================
@@ -85,7 +120,9 @@ router.put('/:id/reject', authenticateToken, rejectMember);
  * POST /api/members/:id/renewal-request
  * Request membership renewal (Public - no auth required)
  */
-router.post('/:id/renewal-request', requestRenewal);
+router.post('/:id/renewal-request', upload.fields([
+  { name: 'paymentProof', maxCount: 1 }
+]), requestRenewal);
 
 /**
  * GET /api/members/renewals

@@ -29,7 +29,7 @@
 
     <main>
         <!-- Hero Section -->
-        <section class="relative min-h-[420px] flex items-center justify-center bg-cover bg-center z-0 overflow-hidden" style="background-image: url('https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750');">
+        <section class="relative min-h-[420px] flex items-center justify-center bg-cover bg-center z-0 overflow-hidden" style="background-image: url('https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750');">
             <!-- Overlay gelap agar teks lebih terbaca -->
             <div class="absolute top-0 left-0 w-full h-full bg-black opacity-70 z-10"></div>
             <div class="relative z-20 max-w-2xl mx-auto text-center py-16 px-6">
@@ -91,7 +91,7 @@
                                     <p><strong>NIM:</strong> <span id="displayNim"></span></p>
                                     <p><strong>Email:</strong> <span id="displayEmail"></span></p>
                                     <p><strong>Status:</strong> <span id="displayStatus" class="font-semibold"></span></p>
-                                    <p><strong>Tanggal Daftar:</strong> <span id="displayRegDate"></span></p>
+                                    <p><strong id="expiryLabel">Masa Berlaku Keanggotaan:</strong> <span id="displayExpiryDate"></span></p>
                                 </div>
                             </div>
                         </div>
@@ -118,6 +118,18 @@
 
                     <!-- Renewal Request Form -->
                     <form id="renewalForm" class="space-y-4">
+                        <div>
+                            <label for="renewalPaymentProof" class="block text-gray-700 text-sm font-medium mb-1">
+                                Bukti Transfer <span class="text-red-500">*</span>
+                            </label>
+                            <div class="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-yellow-400 transition-all duration-300">
+                                <i class="fas fa-file-invoice-dollar text-gray-400 mr-3"></i>
+                                <input type="file" id="renewalPaymentProof" name="paymentProof" accept="image/png, image/jpeg, application/pdf" required
+                                    class="bg-transparent border-none w-full text-gray-700 py-1 px-2 leading-tight focus:outline-none" />
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">Unggah bukti transfer perpanjangan (.jpg, .png, atau .pdf), maksimal 1MB.</p>
+                        </div>
+
                         <div>
                             <label for="renewalReason" class="block text-gray-700 text-sm font-medium mb-1">Alasan Perpanjangan (Opsional)</label>
                             <textarea id="renewalReason" name="reason" rows="4"
@@ -179,6 +191,7 @@
                         <li><a href="./index.html" class="text-gray-600 hover:text-yellow-600 transition">Beranda</a></li>
                         <li><a href="about.html" class="text-gray-600 hover:text-yellow-600 transition">Tentang</a></li>
                         <li><a href="requirements.html" class="text-gray-600 hover:text-yellow-600 transition">Persyaratan</a></li>
+                        <li><a href="member_renewal.html" class="text-gray-600 hover:text-yellow-600 transition">Perpanjangan</a></li>
                         <li><a href="login.html" class="text-gray-600 hover:text-yellow-600 transition">Login</a></li>
                     </ul>
                 </div>

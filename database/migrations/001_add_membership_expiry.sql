@@ -13,10 +13,10 @@ ADD COLUMN IF NOT EXISTS membership_expiry_date DATE AFTER rejection_reason;
 ALTER TABLE members
 ADD INDEX IF NOT EXISTS idx_membership_expiry_date (membership_expiry_date);
 
--- Optional: Set default expiry date for already approved members (1 year from now)
+-- Optional: Set default expiry date for already approved members (1 month from now)
 -- This will set expiry date for members who were already approved but don't have an expiry date set
 UPDATE members
-SET membership_expiry_date = DATE_ADD(NOW(), INTERVAL 1 YEAR)
+SET membership_expiry_date = DATE_ADD(NOW(), INTERVAL 1 MONTH)
 WHERE status = 'approved' AND membership_expiry_date IS NULL;
 
 -- Ensure renewals table has new_expiry_date column properly set up

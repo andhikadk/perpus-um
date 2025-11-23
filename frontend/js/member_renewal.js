@@ -113,28 +113,27 @@ document.addEventListener('DOMContentLoaded', function() {
         const statusElement = document.getElementById('displayStatus');
         statusElement.textContent = statusLabel;
 
-        // Add expiry date info if exists
+        // Display membership expiry date with status
         let expiryInfo = 'Belum diset';
         if (member.membership_expiry_date) {
           const expiryDate = new Date(member.membership_expiry_date);
           expiryInfo = expiryDate.toLocaleDateString('id-ID');
 
-          // Add days left info
+          // Add days left info with color coding
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           expiryDate.setHours(0, 0, 0, 0);
 
           const daysLeft = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
           if (daysLeft > 0) {
-            expiryInfo += ` (${daysLeft} hari lagi)`;
+            expiryInfo += ` <span class="font-semibold text-green-700">(${daysLeft} hari lagi)</span>`;
           } else if (daysLeft === 0) {
-            expiryInfo += ` (Habis hari ini)`;
+            expiryInfo += ` <span class="font-semibold text-orange-700">(Habis hari ini)</span>`;
           } else {
-            expiryInfo += ` (Sudah expired ${Math.abs(daysLeft)} hari)`;
+            expiryInfo += ` <span class="font-semibold text-red-700">(Sudah expired ${Math.abs(daysLeft)} hari yang lalu)</span>`;
           }
         }
-        document.getElementById('displayRegDate').innerHTML = expiryInfo + ' <small class="text-gray-500">(Masa berlaku keanggotaan)</small>';
-        document.getElementById('displayRegDate').parentElement.querySelector('label').textContent = 'Masa Berlaku Keanggotaan';
+        document.getElementById('displayExpiryDate').innerHTML = expiryInfo;
 
         // Color the status based on state
         statusElement.classList.remove('text-green-700', 'text-red-700', 'text-yellow-700');
@@ -145,8 +144,6 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
           statusElement.classList.add('text-yellow-700');
         }
-
-        document.getElementById('displayRegDate').textContent = formatDate(member.registration_date);
 
         // Check if member is eligible for renewal (must be approved)
         const eligibleBox = document.getElementById('eligibleBox');
@@ -207,8 +204,29 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
 
+      // Validate payment proof file
+      const paymentProofInput = document.getElementById('renewalPaymentProof');
+      if (!paymentProofInput.files || paymentProofInput.files.length === 0) {
+        showError('Bukti transfer wajib diunggah');
+        return;
+      }
+
+      const paymentProofFile = paymentProofInput.files[0];
+      const maxSize = 1 * 1024 * 1024; // 1MB
+      if (paymentProofFile.size > maxSize) {
+        showError('Ukuran file bukti transfer maksimal 1MB');
+        return;
+      }
+
       // Get renewal reason (optional)
       const reason = document.getElementById('renewalReason').value.trim();
+
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('paymentProof', paymentProofFile);
+      if (reason) {
+        formData.append('reason', reason);
+      }
 
       // Show loading state
       const submitBtn = renewalForm.querySelector('button[type="submit"]');
@@ -219,10 +237,7 @@ document.addEventListener('DOMContentLoaded', function() {
       try {
         const response = await fetch(`${CONFIG.API.BASE_URL}/members/${currentMemberId}/renewal-request`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ reason: reason || null })
+          body: formData
         });
 
         const data = await response.json();

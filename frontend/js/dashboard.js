@@ -140,38 +140,67 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   /**
-   * Generate chart data (7 or 30 days) with placeholder values
-   * In production, this would fetch real data from backend with date filtering
+   * Fetch registration trend data from backend
    */
-  function generateData(days) {
-    const data = [];
-    const labels = [];
-    let date = new Date();
+  async function fetchRegistrationTrend(days) {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${CONFIG.API.BASE_URL}/members/dashboard/registration-trend?days=${days}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
-    for (let i = days - 1; i >= 0; i--) {
-      const currentDate = new Date(date);
-      currentDate.setDate(date.getDate() - i);
+      if (!response.ok) {
+        console.error('Failed to fetch registration trend');
+        return null;
+      }
 
-      const day = String(currentDate.getDate()).padStart(2, '0');
-      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-      labels.push(`${day}/${month}`);
-
-      // Use actual count data (placeholder for now - could be fetched with date range)
-      data.push(Math.floor(Math.random() * 16) + 5);
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error('Error fetching registration trend:', error);
+      return null;
     }
+  }
+
+  /**
+   * Format trend data for chart
+   */
+  function formatTrendData(trendData) {
+    const labels = [];
+    const data = [];
+
+    trendData.forEach(item => {
+      // Parse date and format as DD/MM
+      const date = new Date(item.date);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      labels.push(`${day}/${month}`);
+      data.push(item.count);
+    });
 
     return { labels, data };
   }
 
   /**
-   * Create or update registration chart
+   * Create or update registration chart with real data
    */
-  function createChart(days) {
+  async function createChart(days) {
     if (!chartAvailable) {
       return;
     }
 
-    const { labels, data } = generateData(days);
+    // Fetch real data from backend
+    const trendData = await fetchRegistrationTrend(days);
+
+    if (!trendData) {
+      console.warn('No trend data available, chart not created');
+      return;
+    }
+
+    const { labels, data } = formatTrendData(trendData);
     const ctx = chartCanvas.getContext('2d');
 
     if (registrationChart) {
@@ -205,7 +234,10 @@ document.addEventListener('DOMContentLoaded', function() {
         scales: {
           y: {
             beginAtZero: true,
-            ticks: { stepSize: 5 }
+            ticks: {
+              stepSize: 1,
+              precision: 0
+            }
           }
         }
       }
@@ -214,6 +246,123 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Initialize chart with 30 days data
   createChart(30);
+
+  // ============================================
+  // 3.5. PROFESSION PIE CHART
+  // ============================================
+  const professionChartCanvas = document.getElementById('professionChart');
+  let professionChart;
+  const professionChartAvailable = !!professionChartCanvas && typeof Chart !== 'undefined';
+
+  if (!professionChartAvailable) {
+    console.warn('Profession chart initialization skipped: canvas or Chart.js is not available');
+  }
+
+  /**
+   * Fetch profession statistics from backend
+   */
+  async function fetchProfessionStats() {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${CONFIG.API.BASE_URL}/members/dashboard/profession-stats`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        console.error('Failed to fetch profession stats');
+        return null;
+      }
+
+      const data = await response.json();
+      return data.data;
+    } catch (error) {
+      console.error('Error fetching profession stats:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Create profession pie chart
+   */
+  async function createProfessionChart() {
+    if (!professionChartAvailable) {
+      return;
+    }
+
+    const stats = await fetchProfessionStats();
+
+    if (!stats) {
+      console.warn('No profession stats available');
+      return;
+    }
+
+    const ctx = professionChartCanvas.getContext('2d');
+
+    if (professionChart) {
+      professionChart.destroy();
+    }
+
+    const mahasiswaCount = stats.Mahasiswa || 0;
+    const umumCount = stats.Umum || 0;
+    const total = mahasiswaCount + umumCount;
+
+    // Show message if no data
+    if (total === 0) {
+      ctx.font = '16px sans-serif';
+      ctx.fillStyle = '#6B7280';
+      ctx.textAlign = 'center';
+      ctx.fillText('Belum ada data profesi', professionChartCanvas.width / 2, professionChartCanvas.height / 2);
+      return;
+    }
+
+    professionChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Mahasiswa', 'Umum'],
+        datasets: [{
+          data: [mahasiswaCount, umumCount],
+          backgroundColor: [
+            '#3B82F6', // Blue for Mahasiswa
+            '#10B981'  // Green for Umum
+          ],
+          borderColor: '#ffffff',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'bottom',
+            labels: {
+              padding: 15,
+              font: {
+                size: 12
+              }
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const label = context.label || '';
+                const value = context.parsed || 0;
+                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                return `${label}: ${value} (${percentage}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Initialize profession pie chart
+  createProfessionChart();
 
   // ============================================
   // 4. TIME PERIOD BUTTONS
@@ -269,18 +418,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (stats) {
       if (totalEl) totalEl.textContent = stats.total || 0;
-      if (activeEl) activeEl.textContent = stats.approved || 0;
-      if (inactiveEl) inactiveEl.textContent = stats.pending || 0;
+      if (activeEl) activeEl.textContent = stats.active || 0;
+      if (inactiveEl) inactiveEl.textContent = stats.inactive || 0;
       if (newEl) newEl.textContent = stats.newRegistrations || 0;
     }
   }
 
-  // Make resume cards clickable (navigate to member data page)
-  document.querySelectorAll('.resume-card').forEach(card => {
-    card.addEventListener('click', () => {
-      window.location.href = 'view_table_mahasiswa.html';
+  // Make resume cards clickable with filter (navigate to member data page)
+  const cardNew = document.getElementById('cardNew');
+  const cardTotal = document.getElementById('cardTotal');
+  const cardActive = document.getElementById('cardActive');
+  const cardInactive = document.getElementById('cardInactive');
+
+  if (cardNew) {
+    cardNew.addEventListener('click', () => {
+      window.location.href = 'view_table_mahasiswa.html?filter=new';
     });
-  });
+  }
+
+  if (cardTotal) {
+    cardTotal.addEventListener('click', () => {
+      window.location.href = 'view_table_mahasiswa.html?filter=all';
+    });
+  }
+
+  if (cardActive) {
+    cardActive.addEventListener('click', () => {
+      window.location.href = 'view_table_mahasiswa.html?filter=active';
+    });
+  }
+
+  if (cardInactive) {
+    cardInactive.addEventListener('click', () => {
+      window.location.href = 'view_table_mahasiswa.html?filter=inactive';
+    });
+  }
 
   // Initialize statistics
   updateResumeCards();
