@@ -198,14 +198,25 @@
             bottom: 2mm;
             right: 6mm;
             text-align: center;
-            font-size: 6pt;
+            font-size: 5pt;
         }
 
-        .signature-line {
+        .signature-image {
+            width: 23mm;
+            height: 6mm;
+            margin: 0;
+            padding: 0;
+            object-fit: contain;
+            background: rgba(255, 255, 255, 0.1);
+            display: block;
+        }
+
+        .signature-name-text {
             width: 23mm;
             border-top: 1px solid white;
-            margin-top: 4mm;
-            padding-top: 1mm;
+            margin: 0;
+            padding: 0;
+            font-size: 5pt;
         }
 
         /* Back Side */
@@ -420,7 +431,8 @@
 
                     <div class="signature-section">
                         <div>Tanda Tangan Pemilik</div>
-                        <div class="signature-line">
+                        <img id="memberSignature" src="" alt="Tanda Tangan" class="signature-image">
+                        <div class="signature-name-text">
                             <span id="signatureName">-</span>
                         </div>
                     </div>
@@ -486,8 +498,8 @@
         const getFileUrl = (path) => {
             if (!path) return null;
             if (path.startsWith('http')) return path;
-            if (path.startsWith('/')) return `http://localhost:3000${path}`;
-            return `http://localhost:3000/${path}`;
+            if (path.startsWith('/')) return `http://16.78.150.77:3000${path}`;
+            return `http://16.78.150.77:3000/${path}`;
         };
 
         // Get member ID from URL parameter
@@ -570,6 +582,17 @@
                     };
                 } else {
                     photoElement.src = './assets/logo-um.png'; // Default image
+                }
+
+                // Set signature using getFileUrl helper
+                const signatureElement = document.getElementById('memberSignature');
+                if (member.signature_path) {
+                    signatureElement.src = getFileUrl(member.signature_path);
+                    signatureElement.onerror = function () {
+                        this.style.display = 'none'; // Hide if signature not available
+                    };
+                } else {
+                    signatureElement.style.display = 'none'; // Hide if no signature path
                 }
 
                 // Show card, hide loading
