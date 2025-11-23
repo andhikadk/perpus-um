@@ -84,8 +84,8 @@ window.addEventListener('DOMContentLoaded', async function () {
     const getFileUrl = (path) => {
       if (!path) return null;
       if (path.startsWith('http')) return path;
-      if (path.startsWith('/')) return `http://16.78.150.77:3000${path}`;
-      return `http://16.78.150.77:3000/${path}`;
+      if (path.startsWith('/')) return `http://localhost:3000${path}`;
+      return `http://localhost:3000/${path}`;
     };
 
     // ============================================
@@ -361,20 +361,20 @@ window.addEventListener('DOMContentLoaded', async function () {
   // DELETE FUNCTIONALITY
   // ============================================
   if (deleteBtn) {
-    deleteBtn.addEventListener('click', function() {
+    deleteBtn.addEventListener('click', function () {
       // Show delete confirmation modal
       deleteModal.classList.remove('hidden');
     });
   }
 
   if (cancelDeleteBtn) {
-    cancelDeleteBtn.addEventListener('click', function() {
+    cancelDeleteBtn.addEventListener('click', function () {
       deleteModal.classList.add('hidden');
     });
   }
 
   if (confirmDeleteBtn) {
-    confirmDeleteBtn.addEventListener('click', async function() {
+    confirmDeleteBtn.addEventListener('click', async function () {
       // Show loading state
       confirmDeleteBtn.disabled = true;
       confirmDeleteBtn.textContent = 'Menghapus...';
@@ -412,7 +412,7 @@ window.addEventListener('DOMContentLoaded', async function () {
 
   // Close delete modal when clicking outside
   if (deleteModal) {
-    deleteModal.addEventListener('click', function(e) {
+    deleteModal.addEventListener('click', function (e) {
       if (e.target === deleteModal) {
         deleteModal.classList.add('hidden');
       }
@@ -424,6 +424,17 @@ window.addEventListener('DOMContentLoaded', async function () {
     backBtn.addEventListener('click', function (event) {
       event.preventDefault();
       window.location.href = 'view_table_mahasiswa.html#data';
+    });
+  }
+
+  // ============================================
+  // PRINT MEMBER CARD FUNCTIONALITY
+  // ============================================
+  const printCardBtn = document.getElementById('print-card-btn');
+  if (printCardBtn) {
+    printCardBtn.addEventListener('click', function () {
+      // Navigate to print card page with member ID
+      window.location.href = `print_member_card.html?id=${memberId}`;
     });
   }
 

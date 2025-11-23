@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,77 @@
     <link rel="stylesheet" href="./css/styles.css">
     <link rel="stylesheet" href="./css/color.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @media print {
+
+            /* Hide elements that shouldn't be printed */
+            aside,
+            header,
+            #searchInput,
+            #monthFilter,
+            #yearFilter,
+            #applyFilterBtn,
+            #clearMonthFilterBtn,
+            #printBtn,
+            #filterBadge,
+            footer,
+            .edit-member-btn,
+            .delete-member-btn {
+                display: none !important;
+            }
+
+            /* Show only the table */
+            body {
+                background: white !important;
+            }
+
+            main {
+                padding: 20px !important;
+            }
+
+            /* Print header */
+            .print-header {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 20px;
+                border-bottom: 2px solid #000;
+                padding-bottom: 10px;
+            }
+
+            /* Table styling for print */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            table th,
+            table td {
+                border: 1px solid #000;
+                padding: 8px;
+                text-align: left;
+            }
+
+            table th {
+                background-color: #f0f0f0 !important;
+                font-weight: bold;
+            }
+
+            /* Hide detail and action columns */
+            table th:nth-child(5),
+            table td:nth-child(5),
+            table th:nth-child(6),
+            table td:nth-child(6) {
+                display: none;
+            }
+        }
+
+        /* Hide print header by default */
+        .print-header {
+            display: none;
+        }
+    </style>
 </head>
+
 <body class="bg-gray-50 font-sans text-gray-900">
     <div class="min-h-screen flex bg-gray-50">
         <!-- Sidebar -->
@@ -24,19 +95,22 @@
             <nav class="p-4">
                 <ul class="space-y-1">
                     <li>
-                        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
+                        <a href="dashboard.html"
+                            class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
                             <i class="fas fa-chart-line w-4"></i>
                             <span class="text-sm font-medium">Dashboard</span>
                         </a>
                     </li>
                     <li>
-                        <a href="view_table_mahasiswa.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 bg-gray-100">
+                        <a href="view_table_mahasiswa.html"
+                            class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 bg-gray-100">
                             <i class="fas fa-users w-4"></i>
                             <span class="text-sm font-medium">Data Mahasiswa</span>
                         </a>
                     </li>
                     <li>
-                        <a href="renewal.html" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
+                        <a href="renewal.html"
+                            class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
                             <i class="fas fa-sync w-4"></i>
                             <span class="text-sm">Perpanjangan Keanggotaan</span>
                         </a>
@@ -59,13 +133,16 @@
                     <div class="flex items-center gap-4">
                         <span id="current-date" class="text-sm text-gray-500 hidden sm:inline"></span>
                         <div class="relative">
-                            <button id="profileButton" class="flex items-center gap-2 px-3 py-1 rounded-lg hover:bg-gray-100 transition">
+                            <button id="profileButton"
+                                class="flex items-center gap-2 px-3 py-1 rounded-lg hover:bg-gray-100 transition">
                                 <i class="fas fa-user-circle text-xl text-gray-700"></i>
                                 <span class="font-medium">Admin</span>
                                 <i class="fas fa-chevron-down text-xs text-gray-500"></i>
                             </button>
-                            <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2">
-                                <button id="logoutBtn" class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <div id="profileDropdown"
+                                class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2">
+                                <button id="logoutBtn"
+                                    class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                     <i class="fas fa-sign-out-alt mr-2"></i>Logout
                                 </button>
                             </div>
@@ -75,9 +152,55 @@
             </header>
 
             <main class="flex-1 overflow-auto p-6">
+                <!-- Print Header (hidden by default, shown when printing) -->
+                <div class="print-header">
+                    <h1 class="text-2xl font-bold">PERPUSTAKAAN UNIVERSITAS NEGERI MALANG</h1>
+                    <h2 class="text-xl font-semibold mt-2">Data Anggota</h2>
+                    <p id="printPeriod" class="text-sm mt-1"></p>
+                </div>
+
                 <div class="max-w-6xl mx-auto">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-xl font-bold text-gray-900">Data Mahasiswa</h2>
+                    </div>
+
+                    <!-- Month Filter and Print Controls -->
+                    <div class="mb-4 flex flex-col md:flex-row gap-3 items-start md:items-center justify-between">
+                        <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                            <label class="text-sm font-medium text-gray-700">Filter Bulan:</label>
+                            <select id="monthFilter"
+                                class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Semua Bulan</option>
+                                <option value="1">Januari</option>
+                                <option value="2">Februari</option>
+                                <option value="3">Maret</option>
+                                <option value="4">April</option>
+                                <option value="5">Mei</option>
+                                <option value="6">Juni</option>
+                                <option value="7">Juli</option>
+                                <option value="8">Agustus</option>
+                                <option value="9">September</option>
+                                <option value="10">Oktober</option>
+                                <option value="11">November</option>
+                                <option value="12">Desember</option>
+                            </select>
+                            <select id="yearFilter"
+                                class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <!-- Years will be populated by JavaScript -->
+                            </select>
+                            <button id="applyFilterBtn"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                                <i class="fas fa-filter mr-2"></i>Terapkan Filter
+                            </button>
+                            <button id="clearMonthFilterBtn"
+                                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                                <i class="fas fa-times mr-2"></i>Reset
+                            </button>
+                        </div>
+                        <button id="printBtn"
+                            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                            <i class="fas fa-print mr-2"></i>Cetak Data
+                        </button>
                     </div>
 
                     <!-- Filter Badge -->
@@ -95,18 +218,31 @@
                     <div class="bg-white rounded-lg shadow-sm overflow-hidden">
                         <!-- Search bar for filtering table rows -->
                         <div class="p-4">
-                            <input id="searchInput" type="search" placeholder="Cari nama, tanggal, status..." class="w-full md:w-1/2 px-3 py-2 border rounded-lg focus:outline-none" />
+                            <input id="searchInput" type="search" placeholder="Cari nama, tanggal, status..."
+                                class="w-full md:w-1/2 px-3 py-2 border rounded-lg focus:outline-none" />
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full">
                                 <thead>
                                     <tr class="border-b">
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nomor Anggota</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tgl Pendaftaran</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detail</th>
-                                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Nomor Anggota</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Nama</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Tgl Pendaftaran</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Status</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Detail</th>
+                                        <th
+                                            class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
@@ -123,7 +259,8 @@
     </div>
 
     <!-- Edit Member Modal -->
-    <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center overflow-y-auto">
+    <div id="editModal"
+        class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center overflow-y-auto">
         <div class="bg-white rounded-lg shadow-lg p-6 max-w-2xl w-full mx-4 my-8">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-bold text-gray-900">Edit Data Anggota</h3>
@@ -138,39 +275,53 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Anggota</label>
-                        <input type="text" id="editMemberNumber" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <input type="text" id="editMemberNumber"
+                            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap <span class="text-red-500">*</span></label>
-                        <input type="text" id="editName" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" id="editName"
+                            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">NIM/NIK <span class="text-red-500">*</span></label>
-                        <input type="text" id="editNim" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">NIM/NIK <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" id="editNim"
+                            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
-                        <input type="email" id="editEmail" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email <span
+                                class="text-red-500">*</span></label>
+                        <input type="email" id="editEmail"
+                            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Tempat Lahir</label>
-                        <input type="text" id="editBirthPlace" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" id="editBirthPlace"
+                            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Lahir</label>
-                        <input type="date" id="editBirthDate" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="date" id="editBirthDate"
+                            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Kelamin</label>
-                    <select id="editGender" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select id="editGender"
+                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">Pilih</option>
                         <option value="male">Laki-laki</option>
                         <option value="female">Perempuan</option>
@@ -179,17 +330,22 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
-                    <textarea id="editAddress" rows="2" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    <textarea id="editAddress" rows="2"
+                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Asal Institusi <span class="text-red-500">*</span></label>
-                        <input type="text" id="editInstitution" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Asal Institusi <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" id="editInstitution"
+                            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Profesi</label>
-                        <select id="editProfession" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select id="editProfession"
+                            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="">Pilih</option>
                             <option value="Mahasiswa">Mahasiswa</option>
                             <option value="Umum">Umum</option>
@@ -200,19 +356,23 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Program Studi</label>
-                        <input type="text" id="editProgram" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" id="editProgram"
+                            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Pendaftaran</label>
-                        <input type="date" id="editRegistrationDate" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="date" id="editRegistrationDate"
+                            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
 
                 <div class="flex gap-2 pt-4">
-                    <button type="button" id="cancelEditBtn" class="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
+                    <button type="button" id="cancelEditBtn"
+                        class="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
                         Batal
                     </button>
-                    <button type="submit" id="saveEditBtn" class="flex-1 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
+                    <button type="submit" id="saveEditBtn"
+                        class="flex-1 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
                         Simpan Perubahan
                     </button>
                 </div>
@@ -239,15 +399,11 @@
             </p>
 
             <div class="flex gap-2">
-                <button
-                    type="button"
-                    id="cancelDeleteBtn"
+                <button type="button" id="cancelDeleteBtn"
                     class="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
                     Batal
                 </button>
-                <button
-                    type="button"
-                    id="confirmDeleteBtn"
+                <button type="button" id="confirmDeleteBtn"
                     class="flex-1 px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition">
                     Ya, Hapus
                 </button>
@@ -261,20 +417,24 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
                 <div>
                     <h3 class="text-lg font-bold mb-3">Perpustakaan Universitas Negeri Malang</h3>
-                    <p class="text-gray-500 text-sm">Menyediakan sumber daya dan layanan akademis untuk mendukung pendidikan dan penelitian.</p>
+                    <p class="text-gray-500 text-sm">Menyediakan sumber daya dan layanan akademis untuk mendukung
+                        pendidikan dan penelitian.</p>
                 </div>
                 <div>
                     <h3 class="text-lg font-bold mb-3">Akses Lain</h3>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="./index.html" class="text-gray-600 hover:text-yellow-600 transition">Beranda</a></li>
-                        <li><a href="dashboard.html" class="text-gray-600 hover:text-yellow-600 transition">Dashboard</a></li>
+                        <li><a href="./index.html" class="text-gray-600 hover:text-yellow-600 transition">Beranda</a>
+                        </li>
+                        <li><a href="dashboard.html"
+                                class="text-gray-600 hover:text-yellow-600 transition">Dashboard</a></li>
                         <li><a href="login.html" class="text-gray-600 hover:text-yellow-600 transition">Login</a></li>
                     </ul>
                 </div>
                 <div>
                     <h3 class="text-lg font-bold mb-3">Kontak</h3>
                     <ul class="space-y-2 text-sm text-gray-600">
-                        <li class="flex items-center gap-2"><i class="fas fa-map-marker-alt w-5"></i> Jl. Semarang 5 Malang 65145 Jawa Timur – Indonesia</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-map-marker-alt w-5"></i> Jl. Semarang 5
+                            Malang 65145 Jawa Timur – Indonesia</li>
                         <li class="flex items-center gap-2"><i class="fas fa-phone w-5"></i> (0341) 571035</li>
                         <li class="flex items-center gap-2"><i class="fas fa-envelope w-5"></i> library@um.ac.id</li>
                     </ul>
@@ -282,16 +442,20 @@
                 <div>
                     <h3 class="text-lg font-bold mb-3">Jam Layanan</h3>
                     <ul class="space-y-2 text-sm text-gray-600">
-                        <li class="flex items-center gap-2"><i class="fas fa-clock w-5"></i> Senin - Jumat : 08.00 - 15.00 WIB</li>
-                        <li class="flex items-center gap-2"><i class="fas fa-clock w-5"></i> Sabtu : 09.00 - 14:00 WIB</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-clock w-5"></i> Senin - Jumat : 08.00 -
+                            15.00 WIB</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-clock w-5"></i> Sabtu : 09.00 - 14:00 WIB
+                        </li>
                     </ul>
                 </div>
             </div>
-            <div class="text-center text-gray-400 text-sm pt-6 border-t border-gray-100">&copy; 2025 Perpustakaan Universitas Negeri Malang. All rights reserved.</div>
+            <div class="text-center text-gray-400 text-sm pt-6 border-t border-gray-100">&copy; 2025 Perpustakaan
+                Universitas Negeri Malang. All rights reserved.</div>
         </div>
     </footer>
 
     <script src="./js/config.js"></script>
     <script src="./js/members.js"></script>
 </body>
+
 </html>

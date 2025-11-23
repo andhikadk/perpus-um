@@ -25,7 +25,7 @@ function checkAuthentication() {
 function initializeLogout() {
   const logoutBtn = document.getElementById('logoutBtn');
   if (logoutBtn) {
-    logoutBtn.addEventListener('click', async function(e) {
+    logoutBtn.addEventListener('click', async function (e) {
       e.preventDefault();
 
       const token = localStorage.getItem('authToken');
@@ -52,7 +52,7 @@ function initializeLogout() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   'use strict';
 
   // Check authentication first
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Clear filter button
   if (clearFilterBtn) {
-    clearFilterBtn.addEventListener('click', function() {
+    clearFilterBtn.addEventListener('click', function () {
       window.location.href = 'view_table_mahasiswa.html';
     });
   }
@@ -252,10 +252,9 @@ document.addEventListener('DOMContentLoaded', function() {
             <td class="px-4 py-3 text-sm font-medium text-blue-600">${memberNumber}</td>
             <td class="px-4 py-3 text-sm font-medium text-gray-900">${member.name || '-'}</td>
             <td class="px-4 py-3 text-sm text-gray-500">${registrationDate}</td>
-            <td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${
-              status === 'approved' ? 'bg-green-100 text-green-700' :
+            <td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${status === 'approved' ? 'bg-green-100 text-green-700' :
               status === 'rejected' ? 'bg-red-100 text-red-700' :
-              'bg-yellow-100 text-yellow-700'
+                'bg-yellow-100 text-yellow-700'
             }">${statusLabel}</span></td>
             <td class="px-4 py-3">
               <button class="text-blue-600 hover:underline view-detail-btn" data-id="${member.id}">
@@ -277,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Add event listeners to detail buttons
         document.querySelectorAll('.view-detail-btn').forEach(btn => {
-          btn.addEventListener('click', function() {
+          btn.addEventListener('click', function () {
             const memberId = this.getAttribute('data-id');
             window.location.href = `detail_mahasiswa.html?id=${memberId}`;
           });
@@ -285,7 +284,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Add event listeners to delete buttons
         document.querySelectorAll('.delete-member-btn').forEach(btn => {
-          btn.addEventListener('click', function() {
+          btn.addEventListener('click', function () {
             const memberId = this.getAttribute('data-id');
             const memberName = this.getAttribute('data-name');
             showDeleteModal(memberId, memberName);
@@ -294,7 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Add event listeners to edit buttons
         document.querySelectorAll('.edit-member-btn').forEach(btn => {
-          btn.addEventListener('click', function() {
+          btn.addEventListener('click', function () {
             const memberId = this.getAttribute('data-id');
             showEditModal(memberId);
           });
@@ -407,7 +406,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Handle form submission
   if (editMemberForm) {
-    editMemberForm.addEventListener('submit', async function(e) {
+    editMemberForm.addEventListener('submit', async function (e) {
       e.preventDefault();
 
       const memberId = document.getElementById('editMemberId').value;
@@ -471,7 +470,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Close modal when clicking outside
   if (editModal) {
-    editModal.addEventListener('click', function(e) {
+    editModal.addEventListener('click', function (e) {
       if (e.target === editModal) {
         hideEditModal();
       }
@@ -517,7 +516,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Confirm delete button
   if (confirmDeleteBtn) {
-    confirmDeleteBtn.addEventListener('click', async function() {
+    confirmDeleteBtn.addEventListener('click', async function () {
       if (!memberToDelete) return;
 
       // Show loading state
@@ -564,7 +563,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Close modal when clicking outside
   if (deleteModal) {
-    deleteModal.addEventListener('click', function(e) {
+    deleteModal.addEventListener('click', function (e) {
       if (e.target === deleteModal) {
         hideDeleteModal();
       }
@@ -576,7 +575,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // ============================================
   const searchInput = document.getElementById('searchInput');
   if (searchInput) {
-    searchInput.addEventListener('input', function() {
+    searchInput.addEventListener('input', function () {
       const q = this.value.trim().toLowerCase();
       const rows = document.querySelectorAll('tbody tr');
       rows.forEach(row => {
@@ -590,6 +589,178 @@ document.addEventListener('DOMContentLoaded', function() {
           row.style.display = 'none';
         }
       });
+    });
+  }
+
+  // ============================================
+  // 8. MONTH/YEAR FILTER FUNCTIONALITY
+  // ============================================
+  const monthFilter = document.getElementById('monthFilter');
+  const yearFilter = document.getElementById('yearFilter');
+  const applyFilterBtn = document.getElementById('applyFilterBtn');
+  const clearMonthFilterBtn = document.getElementById('clearMonthFilterBtn');
+
+  // Populate year dropdown (from 2020 to current year + 1)
+  if (yearFilter) {
+    const currentYear = new Date().getFullYear();
+    for (let year = currentYear + 1; year >= 2020; year--) {
+      const option = document.createElement('option');
+      option.value = year;
+      option.textContent = year;
+      if (year === currentYear) {
+        option.selected = true;
+      }
+      yearFilter.appendChild(option);
+    }
+  }
+
+  // Store filtered members globally
+  let currentFilteredMembers = [];
+
+  // Apply month filter
+  if (applyFilterBtn) {
+    applyFilterBtn.addEventListener('click', async function () {
+      const month = monthFilter.value;
+      const year = yearFilter.value;
+
+      if (!month || !year) {
+        alert('Silakan pilih bulan dan tahun terlebih dahulu');
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`${CONFIG.API.BASE_URL}/members/by-month?month=${month}&year=${year}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          alert('Gagal mengambil data anggota');
+          return;
+        }
+
+        const data = await response.json();
+        currentFilteredMembers = data.data || [];
+
+        // Populate table with filtered data
+        const tbody = document.querySelector('tbody');
+        if (tbody) {
+          tbody.innerHTML = '';
+
+          if (currentFilteredMembers.length === 0) {
+            tbody.innerHTML = '<tr class="hover:bg-gray-50"><td class="px-4 py-3 text-center text-gray-500" colspan="6">Tidak ada data untuk bulan/tahun yang dipilih</td></tr>';
+            return;
+          }
+
+          currentFilteredMembers.forEach(member => {
+            const tr = document.createElement('tr');
+            tr.className = 'border-b hover:bg-gray-50';
+
+            const registrationDate = member.registration_date ? new Date(member.registration_date).toLocaleDateString('id-ID') : '-';
+            const status = member.status || 'pending';
+            const statusLabel = status === 'approved' ? 'Disetujui' : status === 'rejected' ? 'Ditolak' : 'Menunggu';
+            const memberNumber = member.member_number || '-';
+
+            tr.innerHTML = `
+              <td class="px-4 py-3 text-sm font-medium text-blue-600">${memberNumber}</td>
+              <td class="px-4 py-3 text-sm font-medium text-gray-900">${member.name || '-'}</td>
+              <td class="px-4 py-3 text-sm text-gray-500">${registrationDate}</td>
+              <td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-medium ${status === 'approved' ? 'bg-green-100 text-green-700' :
+                status === 'rejected' ? 'bg-red-100 text-red-700' :
+                  'bg-yellow-100 text-yellow-700'
+              }">${statusLabel}</span></td>
+              <td class="px-4 py-3">
+                <button class="text-blue-600 hover:underline view-detail-btn" data-id="${member.id}">
+                  Lihat Detail <i class="fas fa-chevron-right text-xs ml-1"></i>
+                </button>
+              </td>
+              <td class="px-4 py-3 text-center">
+                <button class="text-blue-600 hover:text-blue-800 edit-member-btn mr-2" data-id="${member.id}" title="Edit anggota">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="text-red-600 hover:text-red-800 delete-member-btn" data-id="${member.id}" data-name="${member.name || 'Anggota'}" title="Hapus anggota">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            `;
+
+            tbody.appendChild(tr);
+          });
+
+          // Re-attach event listeners
+          document.querySelectorAll('.view-detail-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+              const memberId = this.getAttribute('data-id');
+              window.location.href = `detail_mahasiswa.html?id=${memberId}`;
+            });
+          });
+
+          document.querySelectorAll('.delete-member-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+              const memberId = this.getAttribute('data-id');
+              const memberName = this.getAttribute('data-name');
+              showDeleteModal(memberId, memberName);
+            });
+          });
+
+          document.querySelectorAll('.edit-member-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+              const memberId = this.getAttribute('data-id');
+              showEditModal(memberId);
+            });
+          });
+        }
+
+        // Update print period text
+        const monthNames = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        const printPeriod = document.getElementById('printPeriod');
+        if (printPeriod) {
+          printPeriod.textContent = `Periode: ${monthNames[parseInt(month)]} ${year}`;
+        }
+
+      } catch (error) {
+        console.error('Error fetching filtered members:', error);
+        alert('Terjadi kesalahan: ' + error.message);
+      }
+    });
+  }
+
+  // Clear month filter
+  if (clearMonthFilterBtn) {
+    clearMonthFilterBtn.addEventListener('click', function () {
+      if (monthFilter) monthFilter.value = '';
+      if (yearFilter) yearFilter.selectedIndex = 0;
+      currentFilteredMembers = [];
+      const printPeriod = document.getElementById('printPeriod');
+      if (printPeriod) {
+        printPeriod.textContent = '';
+      }
+      fetchAndPopulateMembers();
+    });
+  }
+
+  // ============================================
+  // 9. PRINT FUNCTIONALITY
+  // ============================================
+  const printBtn = document.getElementById('printBtn');
+  if (printBtn) {
+    printBtn.addEventListener('click', function () {
+      // Update print header if no filter is applied
+      const printPeriod = document.getElementById('printPeriod');
+      if (printPeriod && !printPeriod.textContent) {
+        const today = new Date();
+        printPeriod.textContent = `Dicetak pada: ${today.toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        })}`;
+      }
+
+      // Trigger browser print dialog
+      window.print();
     });
   }
 

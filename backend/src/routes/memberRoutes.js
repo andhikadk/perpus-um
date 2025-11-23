@@ -19,7 +19,8 @@ import {
   approveRenewal,
   rejectRenewal,
   updateMember,
-  deleteMember
+  deleteMember,
+  getMembersByMonth
 } from '../controllers/memberController.js';
 import { upload } from '../middleware/upload.js';
 import { authenticateToken } from '../middleware/auth.js';
@@ -77,6 +78,14 @@ router.get('/dashboard/profession-stats', authenticateToken, getProfessionStats)
  * Note: Must come before /:id route to avoid matching as /:id
  */
 router.get('/dashboard/registration-trend', authenticateToken, getRegistrationTrend);
+
+/**
+ * GET /api/members/by-month
+ * Get members filtered by month and year (Admin only)
+ * Query params: month (1-12), year (YYYY)
+ * Note: Must come before /:id route to avoid matching as /:id
+ */
+router.get('/by-month', authenticateToken, getMembersByMonth);
 
 /**
  * GET /api/members/:id

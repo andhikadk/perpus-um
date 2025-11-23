@@ -957,3 +957,46 @@ export const deleteMember = async (req, res) => {
     return errorResponse(res, 'Gagal menghapus anggota', 500, error.message);
   }
 };
+
+// ============================================
+// GET MEMBERS BY MONTH (Admin)
+// ============================================
+export const getMembersByMonth = async (req, res) => {
+  try {
+    const { month, year } = req.query;
+
+    // Validate required parameters
+    if (!month || !year) {
+      return errorResponse(res, 'Parameter month dan year harus diisi', 400);
+    }
+
+    const monthNum = parseInt(month);
+    const yearNum = parseInt(year);
+
+    // Validate month and year
+    if (isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
+      return errorResponse(res, 'Parameter month harus antara 1-12', 400);
+    }
+
+    if (isNaN(yearNum) || yearNum < 2000 || yearNum > 2100) {
+      return errorResponse(res, 'Parameter year tidak valid', 400);
+    }
+
+    const connection = await pool.getConnection();
+
+    // Get members registered in the specified month and year
+    const [members] = await connection.query(
+      `SELECT * FROM members 
+       WHERE MONTH(registration_date) = ? AND YEAR(registration_date) = ?
+       ORDER BY registration_date ASC, name ASC`,
+      [monthNum, yearNum]
+    );
+
+    connection.release();
+
+    return successResponse(res, members, `Data anggota bulan ${monthNum}/${yearNum}`);
+  } catch (error) {
+    console.error('Get members by month error:', error);
+    return errorResponse(res, 'Gagal mengambil data anggota', 500, error.message);
+  }
+};
